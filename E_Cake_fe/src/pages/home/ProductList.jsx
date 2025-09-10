@@ -1,7 +1,6 @@
-// src/components/ProductList.jsx
 import img1 from "@/assets/4.png";
-import img2 from "@/assets/4.png";
-import img3 from "@/assets/4.png";
+import img2 from "@/assets/5.jpg";
+import img3 from "@/assets/6.jpg";
 
 const PRODUCTS = [
     {
@@ -30,22 +29,18 @@ export default function ProductList() {
 
     return (
         <section className="max-w-6xl mx-auto px-4 md:px-0 my-8">
-            {/* Heading */}
             <div className="flex flex-col items-center gap-2 mb-4">
-                <div className="h-3 w-40 rounded-full bg-[#FFF2E0]" />
                 <h2 className="text-2xl md:text-[28px] font-extrabold tracking-wide text-[#FF523B]">
                     CHICKEN TODAY
                 </h2>
             </div>
 
-            {/* 4 cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-8">
                 {featured.map((p) => (
                     <article
                         key={p.id}
-                        className="flex flex-col rounded-4xl border border-[#e0e0e0]  overflow-hidden transition-shadow hover:shadow-md"
+                        className="flex flex-col rounded-4xl border border-[#e0e0e0]  overflow-hidden transition-shadow hover:shadow-md cursor-pointer"
                     >
-                        {/* Ảnh: aspect để đồng nhất, không méo */}
                         <div className="h-36 md:h-60 bg-white/60">
                             <img
                                 src={p.img}
@@ -54,10 +49,9 @@ export default function ProductList() {
                             />
                         </div>
 
-                        {/* Nội dung: đẩy giá xuống đáy cho đều */}
                         <div className="p-3 flex flex-col grow">
                             <h3
-                                className="text-center text-[#FF523B] font-semibold leading-snug
+                                className="text-center text-[#FF523B] font-bold leading-snug
                            text-[13px] md:text-[15px] min-h-[40px] md:min-h-[48px] pl-1 pr-1"
                                 title={p.name}
                             >
@@ -65,10 +59,10 @@ export default function ProductList() {
                             </h3>
 
                             <div className="mt-auto text-center font-semibold text-neutral-900 pb-5">
-                                <span className="tabular-nums text-[13px] md:text-[15px]">
+                                <span className="tabular-nums text-[13px] md:text-[15px] font-bold">
                                     {p.price}
                                 </span>
-                                <span className="ml-1 text-sm md:text-base">
+                                <span className="ml-1 text-sm md:text-base underline font-bold">
                                     đ
                                 </span>
                             </div>
@@ -76,6 +70,14 @@ export default function ProductList() {
                     </article>
                 ))}
             </div>
+            <button
+                className="block mx-auto mt-8 px-5 py-3 rounded-full
+             bg-[#FF8A00] text-white font-extrabold
+             transition-colors duration-200
+             hover:bg-[#FFC98D] active:bg-[#FFBD77] cursor-pointer"
+            >
+                Xem thêm thực đơn
+            </button>
         </section>
     );
 }
