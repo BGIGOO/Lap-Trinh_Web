@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { NavLink, Link } from "react-router-dom";
 import { Menu, X, ShoppingCart, UserRound } from "lucide-react";
 import LogoUrl from "@/assets/crispc.svg";
 
-function Header() {
+function Header({ setOpenAuthModal }) {
     const [open, setOpen] = useState(false);
 
     return (
@@ -39,6 +40,7 @@ function Header() {
                         <button
                             aria-label="Tài khoản"
                             className="p-2 cursor-pointer hover:text-[#FFAF5A] transition-colors"
+                            onClick={setOpenAuthModal}
                         >
                             <UserRound className="h-7 w-7" />
                         </button>
@@ -59,12 +61,16 @@ function Header() {
                     </a>
 
                     <nav className="flex items-center gap-2">
-                        <button className="px-3 py-2 text-[#FF523B] text-[13px] font-bold uppercase rounded-sm bg-[#FFF2E0] hover:bg-[#FFAF5A] transition-colors duration-200 cursor-pointer">
-                            TRANG CHỦ
-                        </button>
-                        <button className="px-3 py-2 text-[#FF523B] text-[13px] font-bold uppercase rounded-sm bg-[#FFF2E0] hover:bg-[#FFAF5A] transition-colors duration-200 cursor-pointer">
-                            THỰC ĐƠN
-                        </button>
+                        <Link to="/">
+                            <button className="px-3 py-2 text-[#FF523B] text-[13px] font-bold uppercase rounded-sm bg-[#FFF2E0] hover:bg-[#FFAF5A] transition-colors duration-200 cursor-pointer">
+                                TRANG CHỦ
+                            </button>
+                        </Link>
+                        <Link to="/product">
+                            <button className="px-3 py-2 text-[#FF523B] text-[13px] font-bold uppercase rounded-sm bg-[#FFF2E0] hover:bg-[#FFAF5A] transition-colors duration-200 cursor-pointer">
+                                THỰC ĐƠN
+                            </button>
+                        </Link>
                         <button className="px-3 py-2 text-[#FF523B] text-[13px] font-bold uppercase rounded-sm bg-[#FFF2E0] hover:bg-[#FFAF5A] transition-colors duration-200 cursor-pointer">
                             DỊCH VỤ
                         </button>
@@ -86,6 +92,7 @@ function Header() {
                         <button
                             aria-label="Tài khoản"
                             className="p-2 text-white hover:text-[#FFAF5A] transition-colors cursor-pointer"
+                            onClick={setOpenAuthModal}
                         >
                             <UserRound className="h-8 w-8" />
                         </button>

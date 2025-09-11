@@ -1,24 +1,19 @@
-import { useState } from "react";
-import "./App.css";
-import Header from "./components/Header";
-import Banner from "./pages/home/Banner";
-import ProductList from "./pages/home/ProductList";
-import Footer from "./components/Footer";
-import ProductShipping from "./pages/home/ProductShipping";
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/home/Home";
+import RootLayout from "./components/RootLayout";
+import Product from "./pages/product/Product";
+import { BrowserRouter } from "react-router-dom";
 
 function App() {
-    const [count, setCount] = useState(0);
-
     return (
-        <>
-            <div className="min-h-screen bg-white text-slate-800 overflow-x-hidden">
-                <Header></Header>
-                <Banner></Banner>
-                <ProductShipping></ProductShipping>
-                <ProductList></ProductList>
-                <Footer></Footer>
-            </div>
-        </>
+        <BrowserRouter>
+            <Routes>
+                <Route element={<RootLayout />}>
+                    <Route index path="/" element={<Home />} />
+                    <Route path="product" element={<Product />} />
+                </Route>
+            </Routes>
+        </BrowserRouter>
     );
 }
 
