@@ -20,7 +20,7 @@ export default function ProductShipping() {
                     type="button"
                     aria-pressed={mode === "delivery"}
                     onClick={() => setMode("delivery")}
-                    className={`px-5 py-2.5 rounded-full text-sm font-extrabold shadow cursor-pointer
+                    className={`px-5 py-2.5 rounded-full text-sm font-bold shadow cursor-pointer
             ${
                 mode === "delivery"
                     ? "bg-[#FF8A00] text-white"
@@ -35,7 +35,7 @@ export default function ProductShipping() {
                     type="button"
                     aria-pressed={mode === "pickup"}
                     onClick={() => setMode("pickup")}
-                    className={`px-5 py-2.5 rounded-full text-sm font-extrabold shadow cursor-pointer
+                    className={`px-5 py-2.5 rounded-full text-sm font-bold shadow cursor-pointer
             ${
                 mode === "pickup"
                     ? "bg-[#FF8A00] text-white"
@@ -54,7 +54,7 @@ export default function ProductShipping() {
                 <input
                     type="text"
                     placeholder={placeholder}
-                    className="ml-5 flex-1 h-full outline-none text-sm md:text-base placeholder:text-gray-400"
+                    className="px-5 flex-1 h-full outline-none text-sm md:text-base placeholder:text-gray-400"
                 />
 
                 <button

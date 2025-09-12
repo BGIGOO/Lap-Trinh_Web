@@ -72,7 +72,7 @@ export default function ProductList() {
             </div>
             <button
                 className="block mx-auto mt-8 px-5 py-3 rounded-full
-             bg-[#FF8A00] text-white font-extrabold
+             bg-[#FF8A00] text-white text-sm font-bold
              transition-colors duration-200
              hover:bg-[#FFC98D] active:bg-[#FFBD77] cursor-pointer"
             >

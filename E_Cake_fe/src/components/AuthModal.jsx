@@ -92,9 +92,9 @@ function PrimaryButton({ children }) {
             className="
         block mx-auto mt-5 w-[80%]
         rounded-full bg-[#FF8A00] text-white
-        font-extrabold uppercase tracking-wide
+        font-bold uppercase tracking-wide
         py-3 hover:bg-[#FFA33A] active:brightness-95
-        transition-colors
+        transition-colors cursor-pointer
       "
         >
             {children}
