@@ -71,9 +71,11 @@ function Header({ setOpenAuthModal }) {
                                 THỰC ĐƠN
                             </button>
                         </Link>
-                        <button className="px-3 py-2 text-[#FF523B] text-[13px] font-bold uppercase rounded-sm bg-[#FFF2E0] hover:bg-[#FFAF5A] transition-colors duration-200 cursor-pointer">
-                            DỊCH VỤ
-                        </button>
+                        <Link to="/book-party">
+                            <button className="px-3 py-2 text-[#FF523B] text-[13px] font-bold uppercase rounded-sm bg-[#FFF2E0] hover:bg-[#FFAF5A] transition-colors duration-200 cursor-pointer">
+                                ĐẶT TIỆC
+                            </button>
+                        </Link>
                         <Link to="/promotion">
                             <button className="px-3 py-2 text-[#FF523B] text-[13px] font-bold uppercase rounded-sm bg-[#FFF2E0] hover:bg-[#FFAF5A] transition-colors duration-200 cursor-pointer">
                                 KHUYẾN MÃI
