@@ -74,9 +74,11 @@ function Header({ setOpenAuthModal }) {
                         <button className="px-3 py-2 text-[#FF523B] text-[13px] font-bold uppercase rounded-sm bg-[#FFF2E0] hover:bg-[#FFAF5A] transition-colors duration-200 cursor-pointer">
                             DỊCH VỤ
                         </button>
-                        <button className="px-3 py-2 text-[#FF523B] text-[13px] font-bold uppercase rounded-sm bg-[#FFF2E0] hover:bg-[#FFAF5A] transition-colors duration-200 cursor-pointer">
-                            KHUYẾN MÃI
-                        </button>
+                        <Link to="/promotion">
+                            <button className="px-3 py-2 text-[#FF523B] text-[13px] font-bold uppercase rounded-sm bg-[#FFF2E0] hover:bg-[#FFAF5A] transition-colors duration-200 cursor-pointer">
+                                KHUYẾN MÃI
+                            </button>
+                        </Link>
                         <button className="px-3 py-2 text-[#FF523B] text-[13px] font-bold uppercase rounded-sm bg-[#FFF2E0] hover:bg-[#FFAF5A] transition-colors duration-200 cursor-pointer">
                             VỀ CRISPC
                         </button>
@@ -140,9 +142,11 @@ function Header({ setOpenAuthModal }) {
                             onClick={() => setOpen(false)}
                             className="block"
                         >
-                            <span className="block text-center px-4 py-3 rounded-sm shadow-sm bg-[#FFF2E0] text-[#FF523B] font-bold uppercase text-[13px]">
-                                TRANG CHỦ
-                            </span>
+                            <Link to="/">
+                                <span className="block text-center px-4 py-3 rounded-sm shadow-sm bg-[#FFF2E0] text-[#FF523B] font-bold uppercase text-[13px]">
+                                    TRANG CHỦ
+                                </span>
+                            </Link>
                         </a>
                         <a
                             href="#"
@@ -158,18 +162,22 @@ function Header({ setOpenAuthModal }) {
                             onClick={() => setOpen(false)}
                             className="block"
                         >
-                            <span className="block text-center px-4 py-3 rounded-sm shadow-sm bg-[#FFF2E0] text-[#FF523B] font-bold uppercase text-[13px]">
-                                THỰC ĐƠN
-                            </span>
+                            <Link to="/product">
+                                <span className="block text-center px-4 py-3 rounded-sm shadow-sm bg-[#FFF2E0] text-[#FF523B] font-bold uppercase text-[13px]">
+                                    THỰC ĐƠN
+                                </span>
+                            </Link>
                         </a>
                         <a
                             href="#"
                             onClick={() => setOpen(false)}
                             className="block"
                         >
-                            <span className="block text-center px-4 py-3 rounded-sm shadow-sm bg-[#FFF2E0] text-[#FF523B] font-bold uppercase text-[13px]">
-                                KHUYẾN MÃI
-                            </span>
+                            <Link to="/promotion">
+                                <span className="block text-center px-4 py-3 rounded-sm shadow-sm bg-[#FFF2E0] text-[#FF523B] font-bold uppercase text-[13px]">
+                                    KHUYẾN MÃI
+                                </span>
+                            </Link>
                         </a>
                         <a
                             href="#"
