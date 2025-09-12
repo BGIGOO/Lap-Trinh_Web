@@ -1,5 +1,12 @@
+import CategoryProducts from "./CategoryProducts";
+import ProductFilter from "./ProductFilter";
 function Product() {
-    return <h1>Product Page</h1>;
+  return (
+    <>
+      <ProductFilter></ProductFilter>
+      <CategoryProducts heading="Ưu đãi hôm nay"></CategoryProducts>
+      <CategoryProducts heading="Món mới"></CategoryProducts>
+    </>
+  );
 }
-
 export default Product;
