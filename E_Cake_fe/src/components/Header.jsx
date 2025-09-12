@@ -10,7 +10,7 @@ function Header({ setOpenAuthModal }) {
         <header className="sticky top-0 z-40 bg-[#FF5A3E] text-white">
             <div className="max-w-6xl mx-auto px-4">
                 {/* ===== MOBILE BAR ===== */}
-                <div className="flex items-center justify-between h-16 md:hidden">
+                <div className="flex items-center justify-between h-18 md:hidden">
                     <button
                         onClick={() => setOpen(true)}
                         aria-label="Mở menu"
@@ -48,7 +48,7 @@ function Header({ setOpenAuthModal }) {
                 </div>
 
                 {/* ===== DESKTOP BAR ===== */}
-                <div className="hidden md:flex items-center justify-between h-16">
+                <div className="hidden md:flex items-center justify-between h-18">
                     <a
                         href="/"
                         className="inline-flex items-center cursor-pointer"
