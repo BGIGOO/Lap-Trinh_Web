@@ -175,7 +175,7 @@ export default function BookParty() {
                         <div className={label + " mb-2"}>Ghi chú</div>
                         <textarea
                             rows={3}
-                            className="w-full rounded-md border border-gray-200 focus:border-[#FF8A00] focus:ring-0 outline-none p-3"
+                            className="w-full rounded-md border border-gray-200 focus:border-[#FF8A00] focus:ring-0 outline-none p-3 text-sm"
                             placeholder="Nhập ghi chú cho bữa tiệc"
                         />
                     </div>

@@ -8,9 +8,11 @@ export default function RootLayout() {
     const [openAuthModal, setOpenAuthModal] = useState(false);
 
     return (
-        <div className="min-h-screen bg-white text-slate-800 overflow-x-hidden">
+        <div className="min-h-screen bg-white text-slate-800 overflow-x-hidden flex flex-col">
             <Header setOpenAuthModal={() => setOpenAuthModal(true)} />
-            <Outlet />
+            <main className="flex-1">
+                <Outlet />
+            </main>
             <Footer />
             <AuthModal
                 open={openAuthModal}

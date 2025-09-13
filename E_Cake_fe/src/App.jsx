@@ -5,6 +5,7 @@ import Product from "./pages/product/Product";
 import { BrowserRouter } from "react-router-dom";
 import Promotion from "./pages/promotion/Promotion";
 import BookParty from "./pages/party/BookParty";
+import CartDetail from "./pages/cart/CartDetail";
 
 function App() {
     return (
@@ -15,6 +16,7 @@ function App() {
                     <Route path="product" element={<Product />} />
                     <Route path="promotion" element={<Promotion />} />
                     <Route path="book-party" element={<BookParty />} />
+                    <Route path="cart-detail" element={<CartDetail />} />
                 </Route>
             </Routes>
         </BrowserRouter>

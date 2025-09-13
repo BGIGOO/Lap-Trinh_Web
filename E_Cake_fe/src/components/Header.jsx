@@ -87,12 +87,14 @@ function Header({ setOpenAuthModal }) {
                     </nav>
 
                     <div className="flex items-center gap-2">
-                        <button
-                            aria-label="Giỏ hàng"
-                            className="p-2 text-white hover:text-[#FFAF5A] transition-colors cursor-pointer"
-                        >
-                            <ShoppingCart className="h-8 w-8" />
-                        </button>
+                        <Link to="/cart-detail">
+                            <button
+                                aria-label="Giỏ hàng"
+                                className="p-2 text-white hover:text-[#FFAF5A] transition-colors cursor-pointer"
+                            >
+                                <ShoppingCart className="h-8 w-8" />
+                            </button>
+                        </Link>
                         <button
                             aria-label="Tài khoản"
                             className="p-2 text-white hover:text-[#FFAF5A] transition-colors cursor-pointer"
@@ -139,48 +141,42 @@ function Header({ setOpenAuthModal }) {
                     </div>
 
                     <nav className="px-4 pb-8 space-y-3">
-                        <a
-                            href="#"
+                        <Link
+                            to="/"
                             onClick={() => setOpen(false)}
                             className="block"
                         >
-                            <Link to="/">
-                                <span className="block text-center px-4 py-3 rounded-sm shadow-sm bg-[#FFF2E0] text-[#FF523B] font-bold uppercase text-[13px]">
-                                    TRANG CHỦ
-                                </span>
-                            </Link>
-                        </a>
-                        <a
-                            href="#"
+                            <span className="block text-center px-4 py-3 rounded-sm shadow-sm bg-[#FFF2E0] text-[#FF523B] font-bold uppercase text-[13px]">
+                                TRANG CHỦ
+                            </span>
+                        </Link>
+                        <Link
+                            to="/"
                             onClick={() => setOpen(false)}
                             className="block"
                         >
                             <span className="block text-center px-4 py-3 rounded-sm shadow-sm bg-[#FFF2E0] text-[#FF523B] font-bold uppercase text-[13px]">
                                 VỀ CHÚNG TÔI
                             </span>
-                        </a>
-                        <a
-                            href="#"
+                        </Link>
+                        <Link
+                            to="/product"
                             onClick={() => setOpen(false)}
                             className="block"
                         >
-                            <Link to="/product">
-                                <span className="block text-center px-4 py-3 rounded-sm shadow-sm bg-[#FFF2E0] text-[#FF523B] font-bold uppercase text-[13px]">
-                                    THỰC ĐƠN
-                                </span>
-                            </Link>
-                        </a>
-                        <a
-                            href="#"
+                            <span className="block text-center px-4 py-3 rounded-sm shadow-sm bg-[#FFF2E0] text-[#FF523B] font-bold uppercase text-[13px]">
+                                THỰC ĐƠN
+                            </span>
+                        </Link>
+                        <Link
+                            to="/promotion"
                             onClick={() => setOpen(false)}
                             className="block"
                         >
-                            <Link to="/promotion">
-                                <span className="block text-center px-4 py-3 rounded-sm shadow-sm bg-[#FFF2E0] text-[#FF523B] font-bold uppercase text-[13px]">
-                                    KHUYẾN MÃI
-                                </span>
-                            </Link>
-                        </a>
+                            <span className="block text-center px-4 py-3 rounded-sm shadow-sm bg-[#FFF2E0] text-[#FF523B] font-bold uppercase text-[13px]">
+                                KHUYẾN MÃI
+                            </span>
+                        </Link>
                         <a
                             href="#"
                             onClick={() => setOpen(false)}
