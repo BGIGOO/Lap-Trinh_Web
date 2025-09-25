@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
-const SECRET = new TextEncoder().encode("mysecret"); // giống backend
+const SECRET = new TextEncoder().encode("mysecret");
 
 export async function middleware(req) {
   const { pathname } = req.nextUrl;
 
+  // Nếu vào dashboard => check token
   if (pathname.startsWith("/admin123/dashboard")) {
-    const token = req.cookies.get("token")?.value || null;
+    const token = req.cookies.get("token")?.value;
 
     if (!token) {
       return NextResponse.redirect(new URL("/admin123/login", req.url));
@@ -23,9 +24,14 @@ export async function middleware(req) {
     }
   }
 
+  // Nếu gõ /admin123 thì auto redirect sang login
+  if (pathname === "/admin123") {
+    return NextResponse.redirect(new URL("/admin123/login", req.url));
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin123/dashboard/:path*"],
+  matcher: ["/admin123/:path*"],
 };
