@@ -1,6 +1,7 @@
 import CardStat from "@/components/admin123/CardStat";
 
 export default function DashboardPage() {
+  // console.log('Middleware running: ccc');
   return (
     <div className="space-y-6">
       {/* Hàng thống kê */}
