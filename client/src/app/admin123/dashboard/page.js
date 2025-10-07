@@ -1,4 +1,4 @@
-import CardStat from "@/components/admin/CardStat";
+import CardStat from "@/components/admin123/CardStat";
 
 export default function DashboardPage() {
   return (

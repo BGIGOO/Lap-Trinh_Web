@@ -1,37 +1,27 @@
-import { NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+import { NextResponse } from 'next/server';
 
-const SECRET = new TextEncoder().encode("mysecret");
+const COOKIE = process.env.SESSION_COOKIE_NAME || 'token';
+const PROTECTED_PREFIXES = ['/admin123', '/employee123'];
 
-export async function middleware(req) {
+export function middleware(req) {
   const { pathname } = req.nextUrl;
-
-  // Nếu vào dashboard => check token
-  if (pathname.startsWith("/admin123/dashboard")) {
-    const token = req.cookies.get("token")?.value;
-
-    if (!token) {
-      return NextResponse.redirect(new URL("/admin123/login", req.url));
-    }
-
-    try {
-      const { payload } = await jwtVerify(token, SECRET);
-      if (payload.role !== "admin") {
-        return NextResponse.redirect(new URL("/admin123/login", req.url));
-      }
-    } catch (err) {
-      return NextResponse.redirect(new URL("/admin123/login", req.url));
-    }
+  // bỏ qua tài nguyên tĩnh và API
+  if (pathname.startsWith('/_next') || pathname.startsWith('/api') || pathname === '/favicon.ico') {
+    return NextResponse.next();
   }
 
-  // Nếu gõ /admin123 thì auto redirect sang login
-  if (pathname === "/admin123") {
-    return NextResponse.redirect(new URL("/admin123/login", req.url));
+  // nếu truy cập khu admin/employee mà không có cookie -> chuyển về trang login tương ứng
+  if (PROTECTED_PREFIXES.some(p => pathname.startsWith(p))) {
+    const hasToken = !!req.cookies.get(COOKIE)?.value;
+    if (!hasToken) {
+      const loginPath = pathname.startsWith('/admin123') ? '/admin123/login' : '/employee123/login';
+      return NextResponse.redirect(new URL(loginPath, req.url));
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin123/:path*"],
+  matcher: ['/((?!_next/static|_next/image).*)'],
 };
