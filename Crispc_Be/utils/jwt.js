@@ -1,15 +1,24 @@
-import jwt from "jsonwebtoken";
+const jwt = require("jsonwebtoken");
 
 const SECRET = process.env.JWT_SECRET || "mysecret";
+const ISSUER = process.env.JWT_ISSUER || "fastfood-api";
+const AUD = process.env.JWT_AUDIENCE || "fastfood-client";
 
-export function signToken(payload) {
-  return jwt.sign(payload, SECRET, { expiresIn: "1h", algorithm: "HS256" });
+function signAccessToken(payload) {
+  return jwt.sign(payload, SECRET, {
+    algorithm: "HS256",
+    expiresIn: "1h",
+    issuer: ISSUER,
+    audience: AUD,
+  });
 }
 
-export function verifyToken(token) {
+function verifyAccessToken(token) {
   try {
     return jwt.verify(token, SECRET);
-  } catch (err) {
+  } catch {
     return null;
   }
 }
+
+module.exports = { signAccessToken, verifyAccessToken };
