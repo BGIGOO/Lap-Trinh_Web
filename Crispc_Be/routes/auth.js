@@ -42,15 +42,22 @@ router.post("/login", loginLimiter, async (req, res) => {
     }
 
     const token = jwt.sign(
-      { sub: String(user.id), username: user.username, role_id: user.role_id },
+      { sub: String(user.acc_id), username: user.username, role_id: user.role_id },
       process.env.JWT_SECRET,
       { algorithm: "HS256", expiresIn: "1h", issuer: "fastfood-api", audience: "fastfood-client" }
     );
 
     res.json({ token });
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
-  }
+  console.error('Login error:', {
+    message: err?.message,
+    code: err?.original?.code,
+    errno: err?.original?.errno,
+    address: err?.original?.address,
+    port: err?.original?.port
+  });
+  res.status(500).json({ message: "Server error" });
+}
 });
 
 module.exports = router;
