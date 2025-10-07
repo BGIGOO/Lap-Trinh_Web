@@ -6,14 +6,14 @@ const rateLimit = require("express-rate-limit");
 const User = require("../models/User");
 require("dotenv").config();
 
-// Giới hạn 5 lần/10 phút theo IP
-const loginLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000,
-  max: 5,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { message: "Too many login attempts, try again later." }
-});
+// // Giới hạn 5 lần/10 phút theo IP
+// const loginLimiter = rateLimit({
+//   windowMs: 10 * 60 * 1000,
+//   max: 5,
+//   standardHeaders: true,
+//   legacyHeaders: false,
+//   message: { message: "Too many login attempts, try again later." }
+// });
 
 // Tạm thời hỗ trợ cả mật khẩu plain (để migrate dần)
 async function verifyPassword(input, stored) {
