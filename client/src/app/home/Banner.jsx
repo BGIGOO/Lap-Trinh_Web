@@ -1,11 +1,14 @@
+"use client";
+
 import { useState } from "react";
+import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import img1 from "@/assets/1.jpg";
 import img2 from "@/assets/2.jpg";
 import img3 from "@/assets/3.jpg";
 
-// Lấy ảnh theo index 0..2 (không dùng array)
+// Map index -> image (works with static imports)
 function getSrc(n) {
     const m = ((n % 3) + 3) % 3;
     if (m === 0) return img1;
@@ -25,65 +28,82 @@ export default function Banner() {
 
     return (
         <section className="py-2 md:py-4">
+            {/* full-bleed */}
             <div className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen">
                 <div className="relative h-[260px] md:h-[340px] px-2 md:px-4">
                     <div className="flex items-stretch h-full relative">
+                        {/* Left (hidden on mobile) */}
                         <div className="hidden md:block basis-1/4 flex-[1_0_0] opacity-60 scale-95 transition-all duration-500 z-0">
-                            <div className="h-full rounded-2xl overflow-hidden bg-[#FFF2E0] shadow-sm">
-                                <img
+                            <div className="h-full rounded-2xl overflow-hidden bg-[#FFF2E0] shadow-sm relative">
+                                <Image
                                     src={getSrc(leftIdx)}
                                     alt="slide left"
-                                    className="w-full h-full object-cover pointer-events-none"
+                                    fill
+                                    className="object-cover pointer-events-none"
+                                    sizes="(min-width: 768px) 25vw, 100vw"
+                                    priority
                                 />
                             </div>
                         </div>
 
+                        {/* Center */}
                         <div className="relative basis-1/2 flex-[2_0_0] opacity-100 scale-100 transition-all duration-500 z-20">
-                            <div className="h-full rounded-2xl overflow-hidden bg-[#FFF2E0] shadow-sm">
-                                <img
+                            <div className="h-full rounded-2xl overflow-hidden bg-[#FFF2E0] shadow-sm relative">
+                                <Image
                                     src={getSrc(midIdx)}
                                     alt="slide center"
-                                    className="w-full h-full object-cover pointer-events-none"
+                                    fill
+                                    className="object-cover pointer-events-none"
+                                    sizes="(min-width: 768px) 50vw, 100vw"
+                                    priority
                                 />
                             </div>
 
+                            {/* Prev */}
                             <button
                                 onClick={prev}
                                 aria-label="Ảnh trước"
                                 className="
-                                absolute top-1/2 -translate-y-1/2
-                                left-3 md:left-0
-                                translate-x-0 md:-translate-x-1/2
-                                w-9 h-9 md:w-12 md:h-12
-                                rounded-full bg-[#FFAF5A]/70 md:bg-[#FFAF5A] 
-                                hover:bg-[#FFAF5A]/90 md:hover:bg-[#FFAF5A]
-                                text-white grid place-items-center shadow z-30 cursor-pointer"
+                  absolute top-1/2 -translate-y-1/2
+                  left-3 md:left-0
+                  translate-x-0 md:-translate-x-1/2
+                  w-9 h-9 md:w-12 md:h-12
+                  rounded-full bg-[#FFAF5A]/70 md:bg-[#FFAF5A]
+                  hover:bg-[#FFAF5A]/90 md:hover:bg-[#FFAF5A]
+                  text-white grid place-items-center shadow z-30 cursor-pointer
+                "
                             >
                                 <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
                             </button>
 
+                            {/* Next */}
                             <button
                                 onClick={next}
                                 aria-label="Ảnh sau"
                                 className="
-                                absolute top-1/2 -translate-y-1/2
-                                right-3 md:right-0
-                                translate-x-0 md:translate-x-1/2
-                                w-9 h-9 md:w-12 md:h-12
-                                rounded-full bg-[#FFAF5A]/70 md:bg-[#FFAF5A]
-                                hover:bg-[#FFAF5A]/90 md:hover:bg-[#FFAF5A]
-                                text-white grid place-items-center shadow z-30 cursor-pointer"
+                  absolute top-1/2 -translate-y-1/2
+                  right-3 md:right-0
+                  translate-x-0 md:translate-x-1/2
+                  w-9 h-9 md:w-12 md:h-12
+                  rounded-full bg-[#FFAF5A]/70 md:bg-[#FFAF5A]
+                  hover:bg-[#FFAF5A]/90 md:hover:bg-[#FFAF5A]
+                  text-white grid place-items-center shadow z-30 cursor-pointer
+                "
                             >
                                 <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
                             </button>
                         </div>
 
+                        {/* Right (hidden on mobile) */}
                         <div className="hidden md:block basis-1/4 flex-[1_0_0] opacity-60 scale-95 transition-all duration-500 z-0">
-                            <div className="h-full rounded-2xl overflow-hidden bg-[#FFF2E0] shadow-sm">
-                                <img
+                            <div className="h-full rounded-2xl overflow-hidden bg-[#FFF2E0] shadow-sm relative">
+                                <Image
                                     src={getSrc(rightIdx)}
                                     alt="slide right"
-                                    className="w-full h-full object-cover pointer-events-none"
+                                    fill
+                                    className="object-cover pointer-events-none"
+                                    sizes="(min-width: 768px) 25vw, 100vw"
+                                    priority
                                 />
                             </div>
                         </div>

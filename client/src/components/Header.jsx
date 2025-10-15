@@ -1,8 +1,9 @@
 "use client";
+
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X, ShoppingCart, UserRound } from "lucide-react";
-import LogoUrl from "@/assets/crispc.svg";
 
 export default function Header({ setOpenAuthModal }) {
     const [open, setOpen] = useState(false);
@@ -11,7 +12,7 @@ export default function Header({ setOpenAuthModal }) {
         <header className="sticky top-0 z-40 bg-[#FF5A3E] text-white">
             <div className="max-w-6xl mx-auto px-4">
                 {/* ===== MOBILE BAR ===== */}
-                <div className="flex items-center justify-between h-18 md:hidden">
+                <div className="flex items-center justify-between h-16 md:hidden">
                     <button
                         type="button"
                         onClick={() => setOpen(true)}
@@ -25,10 +26,13 @@ export default function Header({ setOpenAuthModal }) {
                         href="/"
                         className="inline-flex items-center cursor-pointer"
                     >
-                        <img
-                            src={LogoUrl}
+                        <Image
+                            src="/crispc.svg"
                             alt="CRISPC"
-                            className="h-10 w-auto object-contain block"
+                            width={120}
+                            height={40}
+                            priority
+                            className="h-10 w-auto object-contain"
                         />
                     </Link>
 
@@ -44,7 +48,7 @@ export default function Header({ setOpenAuthModal }) {
                             type="button"
                             aria-label="Tài khoản"
                             className="p-2 cursor-pointer hover:text-[#FFAF5A] transition-colors"
-                            onClick={setOpenAuthModal}
+                            onClick={() => setOpenAuthModal?.(true)}
                         >
                             <UserRound className="h-7 w-7" />
                         </button>
@@ -52,15 +56,18 @@ export default function Header({ setOpenAuthModal }) {
                 </div>
 
                 {/* ===== DESKTOP BAR ===== */}
-                <div className="hidden md:flex items-center justify-between h-18">
+                <div className="hidden md:flex items-center justify-between h-16">
                     <Link
                         href="/"
                         className="inline-flex items-center cursor-pointer"
                     >
-                        <img
-                            src={LogoUrl}
+                        <Image
+                            src="/crispc.svg"
                             alt="CRISPC"
-                            className="h-14 w-auto object-contain shrink-0 block"
+                            width={160}
+                            height={56}
+                            priority
+                            className="h-14 w-auto object-contain shrink-0"
                         />
                     </Link>
 
@@ -109,7 +116,7 @@ export default function Header({ setOpenAuthModal }) {
                             type="button"
                             aria-label="Tài khoản"
                             className="p-2 text-white hover:text-[#FFAF5A] transition-colors cursor-pointer"
-                            onClick={setOpenAuthModal}
+                            onClick={() => setOpenAuthModal?.(true)}
                         >
                             <UserRound className="h-8 w-8" />
                         </button>
@@ -136,9 +143,11 @@ export default function Header({ setOpenAuthModal }) {
                     aria-hidden={!open}
                 >
                     <div className="p-4 flex items-center justify-between">
-                        <img
-                            src={LogoUrl}
+                        <Image
+                            src="/crispc.svg"
                             alt="CRISPC"
+                            width={112}
+                            height={32}
                             className="h-8 w-auto object-contain"
                         />
                         <button
@@ -152,51 +161,24 @@ export default function Header({ setOpenAuthModal }) {
                     </div>
 
                     <nav className="px-4 pb-8 space-y-3">
-                        <Link
-                            href="/"
-                            onClick={() => setOpen(false)}
-                            className="block"
-                        >
-                            <span className="block text-center px-4 py-3 rounded-sm shadow-sm bg-[#FFF2E0] text-[#FF523B] font-bold uppercase text-[13px]">
-                                TRANG CHỦ
-                            </span>
-                        </Link>
-                        <Link
-                            href="/about"
-                            onClick={() => setOpen(false)}
-                            className="block"
-                        >
-                            <span className="block text-center px-4 py-3 rounded-sm shadow-sm bg-[#FFF2E0] text-[#FF523B] font-bold uppercase text-[13px]">
-                                VỀ CHÚNG TÔI
-                            </span>
-                        </Link>
-                        <Link
-                            href="/product"
-                            onClick={() => setOpen(false)}
-                            className="block"
-                        >
-                            <span className="block text-center px-4 py-3 rounded-sm shadow-sm bg-[#FFF2E0] text-[#FF523B] font-bold uppercase text-[13px]">
-                                THỰC ĐƠN
-                            </span>
-                        </Link>
-                        <Link
-                            href="/promotion"
-                            onClick={() => setOpen(false)}
-                            className="block"
-                        >
-                            <span className="block text-center px-4 py-3 rounded-sm shadow-sm bg-[#FFF2E0] text-[#FF523B] font-bold uppercase text-[13px]">
-                                KHUYẾN MÃI
-                            </span>
-                        </Link>
-                        <Link
-                            href="/services"
-                            onClick={() => setOpen(false)}
-                            className="block"
-                        >
-                            <span className="block text-center px-4 py-3 rounded-sm shadow-sm bg-[#FFF2E0] text-[#FF523B] font-bold uppercase text-[13px]">
-                                DỊCH VỤ
-                            </span>
-                        </Link>
+                        {[
+                            { href: "/", label: "TRANG CHỦ" },
+                            { href: "/about", label: "VỀ CHÚNG TÔI" },
+                            { href: "/product", label: "THỰC ĐƠN" },
+                            { href: "/promotion", label: "KHUYẾN MÃI" },
+                            { href: "/services", label: "DỊCH VỤ" },
+                        ].map((i) => (
+                            <Link
+                                key={i.href}
+                                href={i.href}
+                                onClick={() => setOpen(false)}
+                                className="block"
+                            >
+                                <span className="block text-center px-4 py-3 rounded-sm shadow-sm bg-[#FFF2E0] text-[#FF523B] font-bold uppercase text-[13px]">
+                                    {i.label}
+                                </span>
+                            </Link>
+                        ))}
                     </nav>
                 </aside>
             </div>

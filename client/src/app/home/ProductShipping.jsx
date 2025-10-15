@@ -1,3 +1,6 @@
+// src/components/ProductShipping.jsx
+"use client";
+
 import { useState } from "react";
 import { Search } from "lucide-react";
 
@@ -11,10 +14,12 @@ export default function ProductShipping() {
 
     const onSubmit = (e) => {
         e.preventDefault();
+        // TODO: call your API
     };
 
     return (
         <section className="max-w-3xl mx-auto px-4 mt-5">
+            {/* Tabs */}
             <div className="flex justify-center gap-2 mb-3">
                 <button
                     type="button"
@@ -25,8 +30,7 @@ export default function ProductShipping() {
                 mode === "delivery"
                     ? "bg-[#FF8A00] text-white"
                     : "bg-[#EAEAEA] text-gray-600"
-            }
-          `}
+            }`}
                 >
                     Giao hàng tận nơi
                 </button>
@@ -40,13 +44,13 @@ export default function ProductShipping() {
                 mode === "pickup"
                     ? "bg-[#FF8A00] text-white"
                     : "bg-[#EAEAEA] text-gray-600"
-            }
-          `}
+            }`}
                 >
                     Đặt đến lấy
                 </button>
             </div>
 
+            {/* Search bar */}
             <form
                 onSubmit={onSubmit}
                 className="flex items-center gap-2 rounded-full border border-gray-300 shadow-sm bg-white px-1 h-10 md:h-12"
