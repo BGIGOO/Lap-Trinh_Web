@@ -3,15 +3,13 @@ import { usePathname } from "next/navigation";
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
-  const onLogin = pathname?.startsWith("/admin123/login");
+  const onLogin = pathname?.startsWith("/employee/login");
 
-  // Trang login: KHÔNG áp layout admin
   if (onLogin) return <>{children}</>;
 
-  // Các trang admin khác: áp layout admin bình thường
   return (
     <div className="min-h-screen flex">
-      <aside className="w-60 bg-slate-100 border-r p-4">Admin Sidebar</aside>
+      <aside className="w-60 bg-slate-100 border-r p-4">Employee Sidebar</aside>
       <main className="flex-1 p-6">{children}</main>
     </div>
   );

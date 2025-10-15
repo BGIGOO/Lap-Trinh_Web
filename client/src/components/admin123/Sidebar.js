@@ -19,7 +19,7 @@ export default function Sidebar() {
       <UserCard
         name="NMN"
         role="Chào mừng bạn trở lại"
-        avatar="/manh.jpg" // đặt hình avatar trong public/
+        avatar="@/assets/admin123/gagion-active.png"// đặt hình avatar trong public/
       />
 
       {/* Nút POS bán hàng */}

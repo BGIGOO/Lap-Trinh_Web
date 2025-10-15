@@ -1,4 +1,3 @@
-// src/app/admin123/page.js
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -7,5 +6,5 @@ export default async function AdminIndex() {
   const name = process.env.SESSION_COOKIE_NAME || "token";
   const hasToken = !!store.get(name)?.value;
 
-  redirect(hasToken ? "/admin123/dashboard" : "/admin123/login");
+  redirect(hasToken ? "/employee/dashboard" : "/employee/login");
 }

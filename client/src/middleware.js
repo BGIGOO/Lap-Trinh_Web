@@ -17,15 +17,15 @@ export function middleware(req) {
   }
 
   // cho phép trang login
-  if (pathname === '/admin123/login' || pathname === '/employee123/login') {
+  if (pathname === '/admin123/login' || pathname === '/employee/login') {
     return NextResponse.next();
   }
 
   // bảo vệ khu /admin123 và /employee123
-  if (pathname.startsWith('/admin123') || pathname.startsWith('/employee123')) {
+  if (pathname.startsWith('/admin123') || pathname.startsWith('/employee')) {
     const token = req.cookies.get(process.env.SESSION_COOKIE_NAME || 'token')?.value;
     if (!token) {
-      const login = pathname.startsWith('/admin123') ? '/admin123/login' : '/employee123/login';
+      const login = pathname.startsWith('/admin123') ? '/admin123/login' : '/employee/login';
       return NextResponse.redirect(new URL(login, req.url));
     }
   }

@@ -20,13 +20,13 @@ export default function AdminLoginPage() {
       return;
     }
     // cookie đã được set => vào dashboard
-    window.location.href = '/admin123/dashboard';
+    window.location.href = '/employee/dashboard';
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center">
       <form onSubmit={onSubmit} className="w-80 space-y-3 border p-6 rounded">
-        <h1 className="text-xl font-semibold">Admin Login</h1>
+        <h1 className="text-xl font-semibold">employ Login</h1>
         <input className="w-full border p-2 rounded" placeholder="Username"
                value={username} onChange={e=>setUsername(e.target.value)} />
         <input className="w-full border p-2 rounded" type="password" placeholder="Password"
