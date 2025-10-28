@@ -6,7 +6,7 @@ const ctrl = require("../controllers/auth.controller");
 // 5 lần / 10 phút
 const loginLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
-  max: 999,
+  max: 999, //sua o day
   standardHeaders: true,
   legacyHeaders: false,
   message: { message: "Too many login attempts, try again later." },
