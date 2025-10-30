@@ -47,7 +47,7 @@ exports.create = async (req, res) => {
         if (existing) {
             return res.status(400).json({
                 success: false,
-                message: "Danh mục đã tồn tại!",
+                message: "Slug danh mục đã tồn tại!",
                 data: null,
             });
         }

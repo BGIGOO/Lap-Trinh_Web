@@ -24,7 +24,7 @@ router.get("/", categoryController.getAll);
 // Tạo danh mục
 router.post(
     "/",
-    upload.single("image"),
+    upload.single("image_url"),
     validateCreateCategory,
     handleValidation,
     categoryController.create
@@ -32,7 +32,7 @@ router.post(
 // Cập nhật danh mục
 router.put(
     "/:id",
-    upload.single("image"),
+    upload.single("image_url"),
     validateUpdateCategory,
     handleValidation,
     categoryController.update
