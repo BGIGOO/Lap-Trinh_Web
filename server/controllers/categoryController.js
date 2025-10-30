@@ -84,13 +84,13 @@ exports.update = async (req, res) => {
         const id = req.params.id;
 
         // Kiểm tra ảnh bắt buộc
-        // if (!req.file) {
-        //     return res.status(400).json({
-        //         success: false,
-        //         message: "Ảnh là bắt buộc!",
-        //         data: null,
-        //     });
-        // }
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "Ảnh là bắt buộc!",
+                data: null,
+            });
+        }
 
         const old = await Category.getById(id);
         if (!old) {
@@ -106,7 +106,7 @@ exports.update = async (req, res) => {
         if (existing && existing.id != id) {
             return res.status(400).json({
                 success: false,
-                message: "Tên danh mục đã tồn tại!",
+                message: "Slug danh mục đã tồn tại!",
                 data: null,
             });
         }
