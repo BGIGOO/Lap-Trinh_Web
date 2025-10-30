@@ -24,24 +24,24 @@ exports.getAll = async () => {
 
 // Tạo danh mục
 exports.create = async (data) => {
-    const { name, description, slug, image, is_active, priority } = data;
+    const { name, description, slug, image_url, is_active, priority } = data;
     const [result] = await db.query(
-        `INSERT INTO categories (name, description, slug, image, is_active, priority)
+        `INSERT INTO categories (name, description, slug, image_url, is_active, priority)
      VALUES (?, ?, ?, ?, ?, ?)`,
-        [name, description, slug, image, is_active ?? 1, priority ?? 0]
+        [name, description, slug, image_url, is_active ?? 1, priority ?? 0]
     );
     return { id: result.insertId, ...data };
 };
 
 // Cập nhật danh mục
 exports.update = async (id, data) => {
-    const { name, description, slug, image, is_active, priority } = data;
+    const { name, description, slug, image_url, is_active, priority } = data;
     const [result] = await db.query(
         `UPDATE categories 
-     SET name=?, description=?, slug=?, image=IFNULL(?, image),
+     SET name=?, description=?, slug=?, image_url=IFNULL(?, image_url),
          is_active=?, priority=? 
      WHERE id=?`,
-        [name, description, slug, image, is_active ?? 1, priority ?? 0, id]
+        [name, description, slug, image_url, is_active ?? 1, priority ?? 0, id]
     );
     return result.affectedRows > 0;
 };

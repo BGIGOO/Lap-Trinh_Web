@@ -52,12 +52,12 @@ exports.create = async (req, res) => {
             });
         }
 
-        const image = `/uploads/${req.file.filename}`;
+        const image_url = `/uploads/${req.file.filename}`;
         const newCategory = await Category.create({
             name,
             description,
             slug,
-            image,
+            image_url,
             is_active,
             priority,
         });
@@ -84,13 +84,13 @@ exports.update = async (req, res) => {
         const id = req.params.id;
 
         // Kiểm tra ảnh bắt buộc
-        if (!req.file) {
-            return res.status(400).json({
-                success: false,
-                message: "Ảnh là bắt buộc!",
-                data: null,
-            });
-        }
+        // if (!req.file) {
+        //     return res.status(400).json({
+        //         success: false,
+        //         message: "Ảnh là bắt buộc!",
+        //         data: null,
+        //     });
+        // }
 
         const old = await Category.getById(id);
         if (!old) {
@@ -111,7 +111,7 @@ exports.update = async (req, res) => {
             });
         }
 
-        let image = old.image;
+        let image_url = old.image_url;
         if (req.file) {
             const allowed = ["image/png", "image/jpeg", "image/jpg"];
             if (!allowed.includes(req.file.mimetype)) {
@@ -121,14 +121,14 @@ exports.update = async (req, res) => {
                     data: null,
                 });
             }
-            image = `/uploads/${req.file.filename}`;
+            image_url = `/uploads/${req.file.filename}`;
         }
 
         const updated = await Category.update(id, {
             name,
             description,
             slug,
-            image,
+            image_url,
             is_active,
             priority,
         });
@@ -143,7 +143,15 @@ exports.update = async (req, res) => {
         res.json({
             success: true,
             message: "Cập nhật danh mục thành công!",
-            data: { id, name, description, slug, image, is_active, priority },
+            data: {
+                id,
+                name,
+                description,
+                slug,
+                image_url,
+                is_active,
+                priority,
+            },
         });
     } catch (err) {
         console.error(err);
