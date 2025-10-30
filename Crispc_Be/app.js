@@ -7,8 +7,8 @@ const connection = require("./db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const app = express();
-const port = 3001;
-const host = "localhost";
+const port = process.env.PORT;
+const host = process.env.HOST_NAME;
 app.use(
   cors({
     origin: "http://localhost:3000", // chỉ cho phép domain này
@@ -22,7 +22,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/api/categories", (req, res) => {
-  db.query("SELECT * FROM categories", (err, results) => {
+  connection.query("SELECT * FROM categories", (err, results) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -49,7 +49,7 @@ app.post("/api/register", (req, res) => {
           .json({ message: "Email hoặc số điện thoại đã tồn tại" });
 
       const hash = await bcrypt.hash(password, 10);
-
+      
       connection.query(
         "INSERT INTO users (name, email, phone, password_hash, role) VALUES (?, ?, ?, ?, ?)",
         [name, email, phone, hash, role],
