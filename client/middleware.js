@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 export function middleware(req) {
   // Log sẽ xuất hiện trên TERMINAL, không phải F12 của trình duyệt
-  console.log('[MW] ngoai');
+  //onsole.log('[MW] ngoai');
 
   const pathname = req.nextUrl.pathname;
 
