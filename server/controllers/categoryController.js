@@ -1,5 +1,5 @@
 const Category = require("../models/categoryModel");
-const slugify = require("slugify");
+const { createSlug } = require("../utils/helpers");
 
 // Lấy tất cả danh mục
 exports.getAll = async (req, res) => {
@@ -42,7 +42,7 @@ exports.create = async (req, res) => {
             });
         }
 
-        const slug = slugify(name, { lower: true });
+        const slug = createSlug(name);
         const existing = await Category.getBySlug(slug);
         if (existing) {
             return res.status(400).json({
@@ -101,7 +101,7 @@ exports.update = async (req, res) => {
             });
         }
 
-        const slug = slugify(name, { lower: true });
+        const slug = slugify(name);
         const existing = await Category.getBySlug(slug);
         if (existing && existing.id != id) {
             return res.status(400).json({
