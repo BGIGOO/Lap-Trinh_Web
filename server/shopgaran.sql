@@ -91,3 +91,35 @@ CREATE TABLE IF NOT EXISTS voucher_products (
     ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+CREATE TABLE refresh_tokens (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    token TEXT NOT NULL,
+    expires_at DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Tạm thời tạo chỉ mục (index) cho user_id để tăng tốc
+    INDEX (user_id)
+);
+ALTER TABLE refresh_tokens
+ADD CONSTRAINT fk_refresh_tokens_user
+FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE;
+
+CREATE TABLE roles (
+    id INT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE
+);
+
+INSERT INTO roles (id, name)
+VALUES
+    (1, 'admin'),
+    (2, 'employee'),
+    (3, 'client');
+
+ALTER TABLE users
+ADD CONSTRAINT fk_users_role
+FOREIGN KEY (role) REFERENCES roles(id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE;

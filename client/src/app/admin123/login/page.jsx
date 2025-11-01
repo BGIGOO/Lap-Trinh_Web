@@ -22,10 +22,6 @@ export default function AdminLoginPage() {
       setErr(d?.message || 'Login failed page.js');
       return;
     }
-    
-    // cookie đã được set => vào dashboard
-    // Tốt hơn nên dùng router.push() của Next.js nếu có thể,
-    // nhưng window.location.href cũng sẽ hoạt động để refresh trang
     window.location.href = '/admin123/dashboard';
   }
 
