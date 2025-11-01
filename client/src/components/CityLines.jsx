@@ -7,10 +7,10 @@ export default function Cityline() {
       <Image
         src="/cityline/full.png"
         alt="City line"
-        width={1920}
-        height={180}
+        width={1080}
+        height={200}
         priority
-        className="object-contain w-full max-h select-none pointer-events-none"
+        className="object-contain w-full max-h-[200px] select-none pointer-events-none"
       />
     </div>
   );

@@ -10,30 +10,34 @@ export default function Product() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Gọi API categories khi load trang
+  // ✅ Lấy danh mục sản phẩm
   useEffect(() => {
     fetch("http://localhost:3001/api/categories")
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          // Sắp xếp theo priority tăng dần
           const sorted = data.data.sort((a, b) => a.priority - b.priority);
           setCategories(sorted);
-          setActiveCategory(sorted[0]?.id); // chọn danh mục đầu tiên
+          setActiveCategory(sorted[0]?.id);
         }
       })
       .catch((err) => console.error("Lỗi tải danh mục:", err));
   }, []);
 
-  // ✅ Gọi API products khi đổi danh mục
+  // ✅ Lọc sản phẩm theo danh mục đang chọn
   useEffect(() => {
     if (!activeCategory) return;
     setLoading(true);
 
-    fetch(`http://localhost:3001/api/products?category_id=${activeCategory}`)
+    fetch("http://localhost:3001/api/products")
       .then((res) => res.json())
       .then((data) => {
-        if (data.success) setProducts(data.data);
+        if (data.success) {
+          const filtered = data.data.filter(
+            (p) => p.category_id === activeCategory
+          );
+          setProducts(filtered);
+        }
       })
       .catch((err) => console.error("Lỗi tải sản phẩm:", err))
       .finally(() => setLoading(false));
@@ -76,10 +80,10 @@ export default function Product() {
           {products.map((product) => (
             <div
               key={product.id}
-              className="relative border-2 border-[#FF3C1C] rounded-[20px] p-5 flex flex-col items-center text-center bg-white hover:shadow-lg transition-all duration-300"
+              className="relative border border-[#FF3C1C] rounded-[20px] p-5 flex flex-col items-center text-center bg-white hover:shadow-lg transition-all duration-300"
             >
               {/* Tag HOT */}
-              {product.priority < 105 && (
+              {product.priority <= 101 && (
                 <div className="absolute -top-3 -left-3 bg-[#FF3C1C] text-white text-[11px] font-bold px-3 py-[3px] rounded-full shadow-md">
                   🔥 HOT
                 </div>
@@ -87,17 +91,19 @@ export default function Product() {
 
               {/* Ảnh sản phẩm */}
               <div className="w-full flex justify-center mb-4 mt-3">
-                <Image
-                  src={`http://localhost:3001${product.image_url}`}
-                  alt={product.name}
-                  width={260}
-                  height={180}
-                  className="object-contain h-auto w-[85%]"
-                />
+                <div className="w-[220px] h-[160px] flex items-center justify-center">
+                  <Image
+                    src={`http://localhost:3001${product.image_url}`}
+                    alt={product.name}
+                    width={220}
+                    height={160}
+                    className="object-contain w-full h-full"
+                  />
+                </div>
               </div>
 
               {/* Tên sản phẩm */}
-              <h3 className="text-[#FF3C1C] font-extrabold text-sm md:text-base uppercase mb-2">
+              <h3 className="text-[#FF3C1C] font-extrabold text-sm md:text-base uppercase mb-2 leading-tight">
                 {product.name}
               </h3>
 
