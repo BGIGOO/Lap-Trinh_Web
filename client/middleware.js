@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 export function middleware(req) {
   // Log sẽ xuất hiện trên TERMINAL, không phải F12 của trình duyệt
-  console.log('[MW] ngoai');
+  //onsole.log('[MW] ngoai');
 
   const pathname = req.nextUrl.pathname;
 
@@ -22,16 +22,13 @@ export function middleware(req) {
   }
 
   // bảo vệ khu /admin123 và /employee123
-  if (pathname.startsWith('/admin123') || pathname.startsWith('/employee123')) {
-    const token = req.cookies.get(process.env.SESSION_COOKIE_NAME || 'token')?.value;
-    if (!token) {
-      const login = pathname.startsWith('/admin123') ? '/admin123/login' : '/employee123/login';
-      return NextResponse.redirect(new URL(login, req.url));
-    }
-  }
+  // if (pathname.startsWith('/admin123') || pathname.startsWith('/employee123')) {
+  //   const token = req.cookies.get(process.env.SESSION_COOKIE_NAME || 'token')?.value;
+  //   if (!token) {
+  //     const login = pathname.startsWith('/admin123') ? '/admin123/login' : '/employee123/login';
+  //     return NextResponse.redirect(new URL(login, req.url));
+  //   }
+  // }
 
   return NextResponse.next();
 }
-
-// TẠM THỜI bỏ matcher để Next áp dụng middleware cho mọi request (trừ phần ta cho qua ở trên)
-// export const config = { matcher: ['/((?!_next/static|_next/image).*)'] };
