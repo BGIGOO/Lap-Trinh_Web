@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser"); // 1. Import cookie-parser
+const morgan = require('morgan');
 
 // --- Khởi tạo ---
 dotenv.config(); // 3. Đọc file .env NGAY TỪ ĐẦU
@@ -27,6 +28,7 @@ app.use(cors(corsOptions));
 app.use(express.json()); // Để đọc req.body (JSON)
 app.use(cookieParser()); // Để đọc req.cookies (cho refresh/logout)
 app.use("/uploads", express.static("uploads")); // Đã có
+app.use(morgan('dev')); // Ghi log các request lên console
 // (Route VÍ DỤ MỚI)
 const userRoutes = require("./routes/userRoutes"); // <--- 1. REQUIRE FILE MỚI
 
