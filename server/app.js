@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser"); // 1. Import cookie-parser
-const { checkDbConnection } = require("./config/db"); // 2. Import hàm kiểm tra DB
 
 // --- Khởi tạo ---
 dotenv.config(); // 3. Đọc file .env NGAY TỪ ĐẦU
@@ -16,13 +15,13 @@ const addonOptionRoutes = require("./routes/addonOptionRoutes");
 const voucherRoutes = require("./routes/voucherRoutes");
 
 // (Chúng ta sẽ thêm authRoutes ở bước sau)
-const authRoutes = require("./routes/authRoutes"); 
+const authRoutes = require("./routes/authRoutes");
 
 // --- Middlewares ---
 // 4. Cấu hình CORS
 const corsOptions = {
-  origin: process.env.CLIENT_URL, // Chỉ cho phép domain của Next.js gọi
-  credentials: true // Cho phép gửi cookie
+    origin: process.env.CLIENT_URL, // Chỉ cho phép domain của Next.js gọi
+    credentials: true, // Cho phép gửi cookie
 };
 app.use(cors(corsOptions));
 
@@ -49,13 +48,11 @@ app.use("/api/auth", authRoutes);
 
 // --- Xử lý 404 ---
 app.use((req, res) => {
-  res.status(404).json({ message: "Không tìm thấy endpoint này!" });
+    res.status(404).json({ message: "Không tìm thấy endpoint này!" });
 });
 
 // --- Khởi động server ---
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`✅ Server chạy tại http://localhost:${PORT}`);
-  checkDbConnection();
+    console.log(`✅ Server chạy tại http://localhost:${PORT}`);
 });
-
