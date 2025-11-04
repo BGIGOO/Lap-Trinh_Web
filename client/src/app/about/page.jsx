@@ -1,4 +1,5 @@
 import Banner from "./Banner";
+import IngredientsSection from "./IngredientsSection";
 import OurStory from "./OurStory";
 
 export default function Home() {
@@ -6,6 +7,7 @@ export default function Home() {
     <main>
       <Banner />
       <OurStory />
+      <IngredientsSection />
     </main>
   );
 }

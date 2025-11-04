@@ -5,14 +5,14 @@ export default function IngredientsSection() {
     <section className="w-full">
       {/* --- PHẦN TRÊN: NGUYÊN LIỆU --- */}
       <div className="relative bg-[#FC4126] text-white text-center pt-10 pb-[600px] px-4">
-        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold pb-20">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold pb-10">
           Chúng tôi chọn nguyên liệu tốt nhất, tạo nên món gà giòn – cay – khác
           biệt nhất
         </h2>
 
         {/* HÀNG HÌNH NGUYÊN LIỆU */}
         <div className="absolute w-full h-full top-0 left-0">
-          <div className="absolute left-[10%] top-[60%]">
+          <div className="absolute left-[10%] top-[58%]">
             <Image
               src="/Ingredients/ingre_1.png"
               alt="Bột chiên"
@@ -42,7 +42,7 @@ export default function IngredientsSection() {
             />
           </div>
 
-          <div className="absolute right-[10%] top-[60%]">
+          <div className="absolute right-[10%] top-[58%]">
             <Image
               src="/Ingredients/ingre_4.png"
               alt="Bột chiên"

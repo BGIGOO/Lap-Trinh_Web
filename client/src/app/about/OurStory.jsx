@@ -7,7 +7,7 @@ export default function OurStory() {
       className="w-full flex flex-col md:flex-row items-stretch overflow-hidden"
     >
       {/* LEFT CONTENT */}
-      <div className="w-full md:w-1/2 bg-white flex flex-col justify-between px-8 md:px-16 py-10 md:py-14">
+      <div className="w-full md:w-1/2  flex flex-col justify-between px-8 md:px-16 py-10 ">
         <div>
           <h2 className="text-[#FC4126] text-3xl md:text-4xl font-extrabold uppercase mb-3">
             Câu chuyện CrispC
@@ -36,7 +36,7 @@ export default function OurStory() {
         </div>
 
         {/* Chicken Icon + Line */}
-        <div className="mt-20 w-full">
+        <div className="mt-20 w-full bottom-0 left-0">
           <Image
             src="/story_icon.png"
             alt="CrispC Chicken Mascot"
