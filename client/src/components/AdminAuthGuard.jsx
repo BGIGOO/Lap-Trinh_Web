@@ -1,69 +1,65 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter, usePathname } from 'next/navigation'; // 1. Import 'usePathname'
+import { usePathname, useRouter } from 'next/navigation';
 
-// Giả sử vai trò của bạn: 1: Admin, 2: Employee, 3: Client
-// Chúng ta sẽ cho phép Admin (1) và Employee (2) vào
-const ADMIN_ROLES = [1, 2];
-
-// Component "Gác cổng"
-export default function AdminAuthGuard({ children }) {
-  const { user, isLoading } = useAuth();
+export default function AuthGuard({ allowedRoles, children }) {
+  const auth = useAuth();
   const router = useRouter();
-  const pathname = usePathname(); // 2. Lấy đường dẫn hiện tại
-  const [isAllowed, setIsAllowed] = useState(false);
+  const pathname = usePathname();
+  
+  // (Chúng ta không cần state 'isVerified' nữa
+  // vì 'isLoading' của Context đã đủ tin cậy)
 
   useEffect(() => {
-    // 3. Định nghĩa đường dẫn trang login
-    const loginPath = '/admin123/login';
+    const checkAuth = async () => {
+      // [SỬA LỖI TREO]
+      // Nếu là trang login, KHÔNG làm gì cả
+      if (pathname === '/admin123/login') {
+        return;
+      }
+      
+      // Nếu là trang admin khác, và chưa có user (F5)
+      // thì mới gọi refresh
+      if (!auth.user) {
+        await auth.refreshAndLoadUser(); 
+      }
+    };
 
-    // 4. (LOGIC MỚI) Nếu là trang login, cho phép render ngay
-    if (pathname === loginPath) {
-      setIsAllowed(true);
-      return;
-    }
+    checkAuth();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]); // Chỉ chạy lại khi đổi trang
 
-    // --- Logic bảo vệ (chỉ chạy cho các trang không phải login) ---
-    if (isLoading) {
-      // 1. Đang tải (chờ AuthContext kiểm tra token F5)
-      //    Chưa quyết định, cứ chờ
-      return;
-    }
-
-    if (!user) {
-      // 2. Tải xong, không có user -> Đẩy về login
-      router.replace(loginPath);
-      return;
-    }
-
-    // 3. Tải xong, có user -> Kiểm tra vai trò (role)
-    if (ADMIN_ROLES.includes(user.role)) {
-      // 3a. Hợp lệ -> Cho phép render trang
-      setIsAllowed(true);
-    } else {
-      // 3b. Không hợp lệ (ví dụ: role là 3 - Client)
-      //     Đẩy về trang "Không có quyền" (hoặc tạm thời về login)
-      console.warn('Truy cập bị từ chối: Vai trò không hợp lệ.');
-      router.replace(loginPath); // Hoặc '/unauthorized'
-    }
-
-  }, [user, isLoading, router, pathname]); // 5. Thêm 'pathname' vào dependencies
-
-  // Trong khi chờ (isLoading=true) hoặc chờ redirect (isAllowed=false),
-  // hiển thị màn hình loading để tránh "nháy" (flicker)
-  // (Chúng ta thêm 'pathname' vào điều kiện để trang login không bị loading)
-  if (!isAllowed && pathname !== '/admin123/login') {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Đang tải và xác thực...</p>
-        {/* Bạn có thể thêm Spinner (biểu tượng quay) ở đây */}
-      </div>
-    );
+  // [SỬA LỖI TREO]
+  // 1. Nếu là trang login, cho qua luôn
+  if (pathname === '/admin123/login') {
+    return <>{children}</>;
   }
 
-  // 4. Mọi thứ OK -> Hiển thị trang
+  // 2. Nếu là trang admin khác VÀ đang loading
+  if (auth.isLoading) {
+    return <div>Đang tải và xác thực...</div>;
+  }
+
+  // 3. Nếu đã hết loading, VẪN không có user (bị F5 khi token hết hạn)
+  if (!auth.user) {
+    // Middleware V1 (middleware.js) đã xử lý việc này,
+    // nhưng đây là chốt Vòng 2.
+    // Chúng ta không redirect ở đây nữa, vì middleware đã làm.
+    // Thay vào đó, chúng ta chỉ không render gì cả.
+    console.error("AuthGuard: Không có user (đã bị middleware chặn).");
+    // (Nếu middleware của bạn chạy đúng, code sẽ không bao giờ tới đây)
+    return <div>Đang tải và xác thực...</div>; // Vẫn loading
+  }
+  
+  // 4. Nếu có user, nhưng role không được phép
+  if (!allowedRoles.includes(auth.user.role)) {
+    console.error(`AuthGuard: Role (${auth.user.role}) không được phép.`);
+    router.replace('/'); // Về trang chủ
+    return <div>Bạn không có quyền truy cập...</div>;
+  }
+
+  // 5. Mọi thứ OK
   return <>{children}</>;
 }
 

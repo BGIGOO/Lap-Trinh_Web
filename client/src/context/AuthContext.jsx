@@ -1,6 +1,6 @@
 'use client'; 
 
-import React, { createContext, useContext, useState, useEffect } from 'react'; // 1. Import useEffect
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 const AuthContext = createContext(null);
@@ -8,94 +8,40 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
-  
-  // 2. isLoading BẮT BUỘC phải mặc định là 'true'
-  //    để chặn người dùng thấy trang "văng" ra khi F5
-  const [isLoading, setIsLoading] = useState(true); 
+  // [SỬA LỖI TREO] Bắt đầu là false.
+  // Chỉ "loading" KHI HÀM login() hoặc refresh() được gọi.
+  const [isLoading, setIsLoading] = useState(false); 
   const router = useRouter();
 
-  // 3. (MỚI) Thêm logic "Hồi phục" khi tải trang
-  useEffect(() => {
-    // Tự động chạy hàm này 1 LẦN DUY NHẤT khi app tải
-    const loadUserFromToken = async () => {
-      try {
-        // 3a. Gọi proxy /refresh để lấy accessToken
-        const resRefresh = await fetch('/api/auth/refresh', { method: 'POST' });
-        const dataRefresh = await resRefresh.json();
-
-        if (!resRefresh.ok) {
-          throw new Error('Refresh token không hợp lệ hoặc đã hết hạn.');
-        }
-
-        const { accessToken } = dataRefresh;
-        setAccessToken(accessToken); // Lưu token mới vào state
-
-        // 3b. Dùng accessToken mới để gọi proxy /me
-        const resUser = await fetch('/api/users/me', {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`
-          }
-        });
-        const dataUser = await resUser.json();
-
-        if (!resUser.ok) {
-          throw new Error('Không thể lấy thông tin user.');
-        }
-
-        setUser(dataUser); // 3c. Lưu user vào state
-
-      } catch (error) {
-        console.log('Lỗi tự động đăng nhập:', error.message);
-        // Nếu có lỗi (hết hạn, v.v.), đảm bảo state được dọn dẹp
-        setAccessToken(null);
-        setUser(null);
-      } finally {
-        // 3d. Dù thành công hay thất bại, BÁO CÁO là đã tải xong
-        setIsLoading(false);
-      }
-    };
-
-    loadUserFromToken();
-  }, []); // [] nghĩa là chỉ chạy 1 lần lúc đầu
-
-  // 4. Hàm Login (Giữ nguyên như cũ)
-  const login = async (username, password) => {
-    setIsLoading(true);
+  // (Hàm login giữ nguyên)
+  const login = async (username, password, loginType = 'admin_employee') => {
+    setIsLoading(true); // <-- Bật loading
     try {
+      // ... (code fetch /api/auth/login)
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, loginType }),
       });
-
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || 'Đăng nhập thất bại');
-      }
-
+      if (!res.ok) throw new Error(data.message || 'Đăng nhập thất bại');
       setAccessToken(data.accessToken);
       setUser(data.user);
-      
-      router.push('/admin123/dashboard');
-      
+      if (data.user.role === 1 || data.user.role === 2) {
+         router.push('/admin123/dashboard');
+      } else {
+         router.push('/');
+      }
     } catch (error) {
       console.error(error);
       throw error; 
     } finally {
-      // Dù login thành công hay thất bại, cũng không còn loading nữa
-      // (Trang dashboard sẽ tự xử lý loading của nó)
-      // *Chúng ta set false ở đây nếu login thất bại*
-      // *Nếu thành công, trang mới (dashboard) sẽ có isLoading=true*
-      // *Tạm thời set false*
-      setIsLoading(false);
+      setIsLoading(false); // <-- Tắt loading
     }
   };
 
-  // 5. Hàm Logout (Giữ nguyên như cũ)
+  // (Hàm logout giữ nguyên)
   const logout = async () => {
-    // Báo là đang xử lý
-    setIsLoading(true);
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
     } catch (error) {
@@ -103,18 +49,47 @@ export function AuthProvider({ children }) {
     } finally {
       setAccessToken(null);
       setUser(null);
-      router.push('/admin123/login'); 
-      // Logout xong thì không còn loading nữa
-      setIsLoading(false); 
+      router.push('/');
+    }
+  };
+
+  const refreshAndLoadUser = async () => {
+    // [SỬA LỖI TREO] Bỏ chốt an toàn 'if (isLoading...)'
+    
+    setIsLoading(true); // <-- Bật loading
+    try {
+      // 1. Gọi refresh
+      const resRefresh = await fetch('/api/auth/refresh');
+      const dataRefresh = await resRefresh.json();
+      if (!resRefresh.ok) throw new Error(dataRefresh.message);
+      
+      const newAccessToken = dataRefresh.accessToken;
+      setAccessToken(newAccessToken);
+
+      // 2. Dùng token mới gọi /me
+      const resMe = await fetch('/api/users/me', {
+        headers: { 'Authorization': `Bearer ${newAccessToken}` },
+      });
+      const dataMe = await resMe.json();
+      if (!resMe.ok) throw new Error(dataMe.message);
+
+      setUser(dataMe); // Lưu user
+    } catch (error) {
+      console.error('Session expired or invalid:', error.message);
+      setAccessToken(null);
+      setUser(null);
+    } finally {
+      setIsLoading(false); // <-- Tắt loading
     }
   };
 
   const value = {
     user,
     accessToken,
-    isLoading, // 6. Cung cấp isLoading ra ngoài
+    isLoading,
     login,
     logout,
+    refreshAndLoadUser,
   };
 
   return (
@@ -124,7 +99,7 @@ export function AuthProvider({ children }) {
   );
 }
 
-// Hook (Giữ nguyên)
+// (useAuth giữ nguyên)
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -132,3 +107,4 @@ export const useAuth = () => {
   }
   return context;
 };
+

@@ -1,27 +1,27 @@
-import React from 'react';
-import AdminAuthGuard from '@/components/AdminAuthGuard'; // 1. Import "Gác cổng"
+// 'use client' không cần ở đây nữa, vì Guard sẽ xử lý
 
-// Đây là layout "bọc" tất cả các trang admin (dashboard, statistics...)
+import React from 'react';
+// 1. Import 'AuthGuard' mới
+import AuthGuard from '@/components/AdminAuthGuard'; 
+// (Đổi tên file AdminAuthGuard.jsx -> AuthGuard.jsx nếu muốn)
+
+// 2. Đây là danh sách role ĐƯỢC PHÉP vào /admin123
+const ADMIN_ROLES = [1, 2]; // (Giả sử 1=Admin, 2=Employee)
+
 export default function AdminLayout({ children }) {
   return (
-    // 2. Dùng "Gác cổng" bọc lấy toàn bộ layout
-    <AdminAuthGuard>
-      <div className="admin-container" style={{ display: 'flex' }}>
-        <aside style={{ width: '250px', background: '#f0f0f0', padding: '1rem' }}>
-          {/* Bạn có thể đặt menu (sidebar) cho admin ở đây */}
+    // 3. Bọc children bằng Guard và truyền role
+    <AuthGuard allowedRoles={ADMIN_ROLES}>
+      <div className="admin-container">
+        <aside>
           <h2>Admin Menu</h2>
-          <ul>
-            <li>Dashboard</li>
-            <li>Statistics</li>
-            <li><a href="/">Về trang chủ</a></li>
-          </ul>
+          {/* ... (menu của bạn) ... */}
         </aside>
-        <main style={{ flex: 1, padding: '1rem' }}>
-          {/* {children} (ví dụ: trang dashboard) sẽ được hiển thị
-              NẾU "Gác cổng" cho phép */}
+        <main>
           {children}
         </main>
       </div>
-    </AdminAuthGuard>
+    </AuthGuard>
   );
 }
+

@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
 
-// (Đây là file server-side, nó chạy trên Edge)
-
 export async function middleware(req) {
   const { pathname } = req.nextUrl;
 
