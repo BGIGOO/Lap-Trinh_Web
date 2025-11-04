@@ -1,6 +1,9 @@
+import { Menu } from "lucide-react";
+import AchievementSection from "./AchievementSection";
 import Banner from "./Banner";
 import IngredientsSection from "./IngredientsSection";
 import OurStory from "./OurStory";
+import MenuSection from "./Menu_Section";
 
 export default function Home() {
   return (
@@ -8,6 +11,8 @@ export default function Home() {
       <Banner />
       <OurStory />
       <IngredientsSection />
+      <AchievementSection />
+      <MenuSection />
     </main>
   );
 }
