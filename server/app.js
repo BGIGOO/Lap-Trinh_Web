@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser"); // 1. Import cookie-parser
+const morgan = require('morgan');
 
 // --- Khởi tạo ---
 dotenv.config(); // 3. Đọc file .env NGAY TỪ ĐẦU
@@ -27,16 +28,7 @@ app.use(cors(corsOptions));
 app.use(express.json()); // Để đọc req.body (JSON)
 app.use(cookieParser()); // Để đọc req.cookies (cho refresh/logout)
 app.use("/uploads", express.static("uploads")); // Đã có
-
-// --- Routes (API Endpoints) ---
-// (Các route cũ của bạn)
-const categoryRoutes = require("./routes/categoryRoutes");
-const productRoutes = require("./routes/productRoutes");
-const addonGroupRoutes = require("./routes/addonGroupRoutes");
-const addonOptionRoutes = require("./routes/addonOptionRoutes");
-const voucherRoutes = require("./routes/voucherRoutes");
-// (Route xác thực chúng ta đã làm)
-const authRoutes = require("./routes/authRoutes");
+app.use(morgan('dev')); // Ghi log các request lên console
 // (Route VÍ DỤ MỚI)
 const userRoutes = require("./routes/userRoutes"); // <--- 1. REQUIRE FILE MỚI
 
@@ -46,7 +38,7 @@ app.use("/api/addon-groups", addonGroupRoutes);
 app.use("/api/addon-options", addonOptionRoutes);
 app.use("/api/vouchers", voucherRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes); // <--- 2. SỬ DỤNG ROUTE MỚI
+app.use("/api/users", userRoutes);
 
 // 404
 app.use((req, res) => {

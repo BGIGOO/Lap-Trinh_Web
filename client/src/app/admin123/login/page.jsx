@@ -1,9 +1,12 @@
-// Đánh dấu đây là Client Component để có thể dùng hooks (useState)
-'use client'; 
+'use client'; // Trang login phải là client component
 
 import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext'; // 1. Import "bộ não"
 
 export default function AdminLoginPage() {
+  // 2. Lấy hàm login và trạng thái isLoading từ "bộ não"
+  const auth = useAuth();
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [err, setErr] = useState(null);
@@ -11,19 +14,21 @@ export default function AdminLoginPage() {
   async function onSubmit(e) {
     e.preventDefault();
     setErr(null);
-    const res = await fetch('/api/auth/admin-login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    });
-    
-    if (!res.ok) {
-      const d = await res.json().catch(() => ({}));
-      setErr(d?.message || 'Login failed page.js');
-      return;
+
+    try {
+      // 3. Yêu cầu "bộ não" thực hiện đăng nhập
+      await auth.login(username, password);
+      
+      // (AuthContext sẽ tự động xử lý chuyển hướng)
+
+    } catch (error) {
+      // 4. Bắt lỗi nếu "bộ não" báo về
+      setErr(error.message || 'Lỗi đăng nhập');
     }
-    window.location.href = '/admin123/dashboard';
   }
+
+  // 5. Lấy trạng thái loading từ "bộ não"
+  const isLoading = auth.isLoading;
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -34,6 +39,7 @@ export default function AdminLoginPage() {
           placeholder="Username"
           value={username} 
           onChange={e => setUsername(e.target.value)} 
+          disabled={isLoading} // Thêm disabled
         />
         <input 
           className="w-full border p-2 rounded" 
@@ -41,19 +47,17 @@ export default function AdminLoginPage() {
           placeholder="Password"
           value={password} 
           onChange={e => setPassword(e.target.value)} 
+          disabled={isLoading} // Thêm disabled
         />
         
         {err && <div className="text-sm text-red-500">{err}</div>}
         
-        {/* CHỈNH SỬA TẠI ĐÂY:
-          'bg-orange-' đã được sửa thành 'bg-orange-500' (bạn có thể đổi số 100-900)
-          'text-red-500' đã được sửa thành 'text-white' cho dễ đọc
-        */}
         <button 
           type="submit" 
-          className="w-full bg-orange-500 text-white p-2 rounded hover:bg-orange-600"
+          className="w-full bg-orange-500 text-white p-2 rounded hover:bg-orange-600 disabled:bg-gray-400"
+          disabled={isLoading} // Thêm disabled
         >
-          Login
+          {isLoading ? 'Đang đăng nhập...' : 'Login'}
         </button>
       </form>
     </div>

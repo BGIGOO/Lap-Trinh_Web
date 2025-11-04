@@ -1,4 +1,4 @@
-const { pool } = require('../config/db');
+const db = require('../config/db');
 
 /**
  * @desc    Lấy thông tin profile của user đang đăng nhập
@@ -11,7 +11,7 @@ const getMe = async (req, res) => {
 
   let connection;
   try {
-    connection = await pool.getConnection();
+    connection = await db.getConnection();
 
     // Dùng userId (từ token) để lấy thông tin MỚI NHẤT từ DB
     const [rows] = await connection.query(
