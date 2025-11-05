@@ -12,7 +12,7 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setErr(null);
     try {
-      await login(username, password, 1);
+      await login(username, password, 2);
     } catch (error) {
       setErr(error.message || 'Đăng nhập thất bại');
     }

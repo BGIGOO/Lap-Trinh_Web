@@ -6,7 +6,7 @@ import AuthGuard from '@/components/AdminAuthGuard';
 // (Đổi tên file AdminAuthGuard.jsx -> AuthGuard.jsx nếu muốn)
 
 // 2. Đây là danh sách role ĐƯỢC PHÉP vào /admin123
-const ADMIN_ROLES = [1, 2]; // (Giả sử 1=Admin, 2=Employee)
+const ADMIN_ROLES = 1; // (Giả sử 1=Admin, 2=Employee)
 
 export default function AdminLayout({ children }) {
   return (
