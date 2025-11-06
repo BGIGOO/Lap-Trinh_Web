@@ -8,7 +8,7 @@ export default function AdminLayout({ children }) {
     <AuthGuard allowedRoles={[1]}>
       <div className="admin-container">
         <aside>
-          <h2>Admin Menu</h2>
+          <h2>em Menu</h2>
           {/* ... */}
         </aside>
         <main>{children}</main>

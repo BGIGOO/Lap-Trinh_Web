@@ -1,33 +1,32 @@
-'use client'; // Cần 'use client' để dùng hook
+'use client';
+import { useAuth } from '@/context/AuthContext';
+import AuthGuard from '@/components/AuthGuard';
 
-import { useAuth } from '@/context/AuthContext'; // 1. Import "bộ não"
-
-export default function DashboardPage() {
-  
-  // 2. Lấy thông tin user và hàm logout từ "bộ não"
+export default function AdminDashboardPage() {
   const { user, logout } = useAuth();
 
-  // (Component "Gác cổng" đã đảm bảo 'user' không thể là null ở đây)
-  
+  // Không cần check null ở đây, AuthGuard sẽ lo
   return (
-    <div>
-      <h1>Hello, đây là Dashboard</h1>
-      
-      {/* 3. Hiển thị thông tin user đã đăng nhập */}
-      {user && (
-        <div>
-          <p>Chào mừng, <strong>{user.name}</strong>!</p>
-          <p>Role của bạn: {user.role}</p>
-        </div>
-      )}
-      
-      {/* 4. Thêm nút Logout */}
-      <button 
-        onClick={logout} 
-        className="mt-4 bg-red-500 text-white p-2 rounded"
-      >
-        Đăng xuất
-      </button>
-    </div>
+    <AuthGuard allowedRoles={[1]}>
+      <div className="p-6">
+        <h1 className="text-2xl font-semibold mb-4">Hello, đây là Dashboard</h1>
+
+        {user && (
+          <div className="space-y-1">
+            <p>
+              Chào mừng, <strong>{user.name}</strong>!
+            </p>
+            <p>Role của bạn: {user.role}</p>
+          </div>
+        )}
+
+        <button
+          onClick={logout}
+          className="mt-6 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+        >
+          Đăng xuất
+        </button>
+      </div>
+    </AuthGuard>
   );
 }
