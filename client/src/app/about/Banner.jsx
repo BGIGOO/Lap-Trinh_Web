@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Banner() {
   return (
@@ -21,9 +22,14 @@ export default function Banner() {
             Gà popcorn tẩm bột giòn, lắc cùng bột ớt đặc trưng. <br />
             Càng lắc càng thấm, càng ăn càng cuốn.
           </p>
-          <button className="bg-[#FC4126] text-white font-semibold rounded-full px-6 py-2 shadow-md hover:bg-[#d92d1f] transition">
-            ĐẶT HÀNG NGAY
-          </button>
+          <div className="flex justify-center mt-10 mb-16">
+            <Link
+              href="/product"
+              className="bg-[#FC4126] text-white font-extrabold uppercase text-sm py-3 px-8 rounded-full hover:bg-[#e2371f] transition-all duration-300 shadow-md hover:shadow-lg"
+            >
+              ĐẶT HÀNG NGAY
+            </Link>
+          </div>
         </div>
       </div>
     </section>
