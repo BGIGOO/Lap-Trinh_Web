@@ -3,6 +3,26 @@ import React, { createContext, useContext, useEffect, useRef, useState } from 'r
 
 const AuthContext = createContext(null);
 
+// Chuẩn hóa dữ liệu user từ mọi kiểu payload: {user:{…}}, {success:true,data:{…}}, hoặc {…}
+const pickUser = (payload) => {
+  if (!payload) return null;
+  const u = payload.user || payload.data || payload;
+  if (!u) return null;
+  return {
+    id: u.id,
+    name: u.name,
+    username: u.username,
+    email: u.email,
+    phone: u.phone ?? null,
+    address: u.address ?? null,
+    avatar: u.avatar ?? null,
+    is_active: typeof u.is_active === 'number' ? u.is_active : Number(u.is_active ?? 1),
+    role: typeof u.role === 'number' ? u.role : Number(u.role),
+    created_at: u.created_at,
+    updated_at: u.updated_at,
+  };
+};
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
@@ -12,7 +32,7 @@ export function AuthProvider({ children }) {
   // true khi đang login/refresh thủ công
   const [isLoading, setIsLoading] = useState(false);
 
-  // cờ để Guard biết là bootstrap gặp 403 từ /users/me (admin-only test)
+  // cờ để Guard biết là bootstrap gặp 403 từ /users/me (case bị chặn quyền)
   const [lastAuthError, setLastAuthError] = useState(null);
 
   // chốt chống gọi refresh trùng
@@ -31,12 +51,13 @@ export function AuthProvider({ children }) {
       if (!res.ok) throw new Error(data.message || 'Đăng nhập thất bại');
 
       setAccessToken(data.accessToken);
-      setUser(data.user);
+      setUser(pickUser(data));
       setLastAuthError(null);
 
       // điều hướng theo role
-      if (data.user.role === 1) window.location.href = '/admin123/dashboard';
-      else if (data.user.role === 2) window.location.href = '/employee/dashboard';
+      const r = pickUser(data)?.role;
+      if (r === 1) window.location.href = '/admin123/dashboard';
+      else if (r === 2) window.location.href = '/employee/dashboard';
       else window.location.href = '/';
     } finally {
       setIsLoading(false);
@@ -65,21 +86,22 @@ export function AuthProvider({ children }) {
       const newAccessToken = dataRefresh.accessToken;
       setAccessToken(newAccessToken);
 
+      // Lấy hồ sơ từ /api/users/me — BE hiện trả {success:true,data:{…}}
       const resMe = await fetch('/api/users/me', {
         headers: { Authorization: `Bearer ${newAccessToken}` },
       });
 
-      // CASE TEST: /users/me chỉ cho admin → employee sẽ 403
+      // CASE: bị chặn quyền → 403
       if (resMe.status === 403) {
         setUser(null);
-        setLastAuthError('unauthorized'); // để Guard hiện “không có quyền”
+        setLastAuthError('unauthorized');
         return null;
       }
 
-      const dataMe = await resMe.json();
-      if (!resMe.ok) throw new Error(dataMe?.message || 'Không lấy được thông tin người dùng');
+      const payloadMe = await resMe.json();
+      if (!resMe.ok) throw new Error(payloadMe?.message || 'Không lấy được thông tin người dùng');
 
-      setUser(dataMe);
+      setUser(pickUser(payloadMe));
       setLastAuthError(null);
       return newAccessToken;
     } catch (_) {
@@ -123,7 +145,7 @@ export function AuthProvider({ children }) {
     accessToken,
     isBootstrapping,
     isLoading,
-    lastAuthError,          // <— Guard sẽ đọc cờ này
+    lastAuthError,
     login,
     logout,
     refreshAndLoadUser,

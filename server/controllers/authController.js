@@ -93,7 +93,7 @@ const login = async (req, res) => {
 
     // ====== CÁCH B: Ép đúng “cổng” theo loginType ======
     if (lt !== userRole) {
-      return res.status(403).json({ message: 'Không Đúng' });
+      return res.status(403).json({ message: 'Username hoặc mật khẩu không đúng.' });
     }
 
     // Determine access token expiry dựa trên role thực
