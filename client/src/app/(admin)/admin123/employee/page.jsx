@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useAuth } from "../../../../context/AuthContext"; // Giả định context path
+import { useAuth } from "@/context/AuthContext"; // Giả định context path
 import {
     User,
     Save,

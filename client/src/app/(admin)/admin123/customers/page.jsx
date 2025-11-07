@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useAuth } from "../../../../context/AuthContext"; // Giả định context path
+import { useAuth } from "@/context/AuthContext";
 import {
-    User,
+  User,
   Users,
   Save,
   Search,
@@ -22,100 +22,16 @@ import {
   Sparkles, // Icon cho "NEW"
 } from "lucide-react";
 
-// Hook helper (debounce)
-function useDebounce(value, delay) {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-  return debouncedValue;
-}
+// Tách ra hook
+import { useDebounce } from "@/utils/useDebounce"; 
+// Tách ra components
+import { Modal } from "@/components/private/Modal";
+import { FormInput } from "@/components/private/FormInput";
+import { ToggleSwitch } from "@/components/private/ToggleSwitch";
+// Tách ra hàm helper
+import { isToday } from "@/utils/isToday";
 
-// Modal Component
-const Modal = ({ isOpen, onClose, title, children }) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-center p-4">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
-        <div className="flex justify-between items-center p-5 border-b border-gray-200">
-          <h3 className="text-xl font-semibold text-[#00473e]">{title}</h3>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-        <div className="overflow-y-auto p-6">{children}</div>
-      </div>
-    </div>
-  );
-};
-
-// Input Component
-const FormInput = ({ id, name, label, type = "text", value, onChange, icon, autoComplete = "off", required = false }) => (
-  <div>
-    <label htmlFor={id} className="block text-sm font-medium text-[#475d5b] mb-1">
-      {label} {required && <span className="text-red-500">*</span>}
-    </label>
-    <div className="relative">
-      <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-        {icon || <User className="h-5 w-5 text-gray-400" />}
-      </span>
-      <input
-        type={type}
-        id={id}
-        name={name}
-        value={value}
-        onChange={onChange}
-        autoComplete={autoComplete}
-        required={required}
-        className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#faae2b] focus:border-transparent"
-      />
-    </div>
-  </div>
-);
-
-// Toggle Component
-const ToggleSwitch = ({ id, label, checked, onChange, name }) => (
-  <div className="flex items-center">
-    <div className="flex items-center h-5">
-      <input
-        id={id}
-        name={name}
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        className="form-checkbox h-5 w-5 text-[#00473e] rounded focus:ring-[#faae2b]"
-      />
-    </div>
-    <div className="ml-3 text-sm">
-      <label htmlFor={id} className="font-medium text-[#475d5b]">
-        {label}
-      </label>
-      <p className="text-xs text-gray-500">
-        {checked ? "Tài khoản đang được kích hoạt." : "Tài khoản đang bị vô hiệu hóa."}
-      </p>
-    </div>
-  </div>
-);
-
-// Helper: Kiểm tra "Hôm nay"
-const isToday = (dateString) => {
-  if (!dateString) return false;
-  const today = new Date();
-  const date = new Date(dateString);
-  return date.getDate() === today.getDate() &&
-         date.getMonth() === today.getMonth() &&
-         date.getFullYear() === today.getFullYear();
-};
-
+// Component chính
 export default function CustomersPage() {
   const { fetchWithAuth } = useAuth();
   const [customers, setCustomers] = useState([]);
@@ -129,7 +45,6 @@ export default function CustomersPage() {
     phone: "",
     is_active: "",
   });
-  // Mặc định sort theo 'created_at:desc'
   const [sort, setSort] = useState("created_at:desc");
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -152,7 +67,6 @@ export default function CustomersPage() {
       if (debouncedFilters.phone) params.append("phone", debouncedFilters.phone);
       if (debouncedFilters.is_active !== "") params.append("is_active", debouncedFilters.is_active);
 
-      // API endpoint: /api/users/customers
       const res = await fetchWithAuth(`/api/users/customers?${params.toString()}`);
       if (!res.ok) {
         const errData = await res.json();
@@ -218,12 +132,13 @@ export default function CustomersPage() {
   const handleFormChange = (e) => {
     const { name, value, type, checked } = e.target;
     if (name === "is_active") {
+      // Chuyển boolean (true/false) thành số (1/0)
       setFormData((prev) => ({ ...prev, is_active: checked ? 1 : 0 }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
-
+  
   // API: Sửa (PUT /api/users/profile)
   const handleEditSubmit = async (e) => {
     e.preventDefault();
@@ -385,28 +300,36 @@ export default function CustomersPage() {
                       key={user.id}
                       className="bg-white border-b border-gray-100 hover:bg-gray-50"
                     >
+                      {/* ===== BẮT ĐẦU SỬA "NEW" BADGE ===== */}
                       <td className="px-6 py-4 font-medium text-[#00332c] flex items-center">
-                        <div className="relative">
+                        {/* 1. Bỏ 'relative' khỏi div bọc avatar */}
+                        <div className="mr-3">
                           <img
-                            className="h-10 w-10 rounded-full object-cover mr-3"
+                            className="h-10 w-10 rounded-full object-cover"
                             src={user.avatar || `https://placehold.co/40x40/00473e/f2f7f5?text=${user.name.charAt(0)}`}
                             alt={user.name}
                             onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/40x40/00473e/f2f7f5?text=${user.name.charAt(0)}` }}
                           />
-                          {/* Icon NEW */}
-                          {isToday(user.created_at) && (
-                            <span className="absolute -top-1 -right-1 p-0.5 bg-white rounded-full">
-                              <Sparkles className="h-4 w-4 text-[#faae2b] fill-[#faae2b]" />
-                            </span>
-                          )}
+                          {/* 2. Xóa span 'Sparkles' (ngôi sao) ở đây */}
                         </div>
+                        
                         <div>
-                          <div className="font-semibold">{user.name}</div>
+                          {/* 3. Thêm 'flex items-center' để tên và 'NEW' nằm ngang */}
+                          <div className="font-semibold flex items-center">
+                            <span>{user.name}</span>
+                            {/* 4. Thêm logic 'isToday' và badge 'NEW' vào đây */}
+                            {isToday(user.created_at) && (
+                              <span className="ml-2 bg-[#faae2b] text-[#00473e] text-xs font-bold px-2 py-0.5 rounded-full">
+                                NEW
+                              </span>
+                            )}
+                          </div>
                           <div className="text-xs text-gray-500">
                             {user.email}
                           </div>
                         </div>
                       </td>
+                      {/* ===== KẾT THÚC SỬA "NEW" BADGE ===== */}
                       <td className="px-6 py-4">{user.phone}</td>
                       <td className="px-6 py-4">
                         <button
@@ -510,7 +433,8 @@ export default function CustomersPage() {
           />
            <ToggleSwitch
             id="edit-is_active" name="is_active" label="Kích hoạt tài khoản"
-            checked={formData.is_active === 1}
+            // Sửa: formData.is_active là 1 (active) hoặc 0 (inactive)
+            checked={formData.is_active === 1} 
             onChange={handleFormChange}
           />
 
