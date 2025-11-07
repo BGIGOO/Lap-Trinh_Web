@@ -61,7 +61,7 @@ export default function Header({ toggleSidebar }) {
             </div>
             <div className="hidden md:block text-left">
               <p className="text-sm font-medium text-[#00473e]">
-                {user?.name || user?.username || "Loading..."}
+                {user?.name || "Loading..."}
               </p>
               <p className="text-xs text-[#475d5b]">
                 {user?.email || "..."}

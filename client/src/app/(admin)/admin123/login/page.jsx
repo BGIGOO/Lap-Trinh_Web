@@ -41,7 +41,7 @@ export default function AdminLoginPage() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-orange-500 text-white p-2 rounded hover:bg-orange-600 disabled:bg-gray-400"
+          className="w-full bg-[#00473e] text-white p-2 rounded hover:bg-[#00332c] disabled:opacity-70"
         >
           {isLoading ? 'Đang đăng nhập...' : 'Login'}
         </button>

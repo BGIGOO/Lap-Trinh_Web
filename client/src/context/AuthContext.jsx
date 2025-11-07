@@ -114,6 +114,16 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // ------------ UPDATE USER FROM PAYLOAD (mới thêm) ------------
+  // Hàm này cho phép cập nhật user state từ bên ngoài
+  // mà không cần gọi API
+  const updateUserInContext = (payload) => {
+    const newUser = pickUser(payload); // Dùng lại hàm pickUser có sẵn
+    if (newUser) {
+      setUser(newUser);
+    }
+  };
+
   // ------------ FETCH WRAPPER (tự retry 1 lần khi 401) ------------
   const fetchWithAuth = async (url, options = {}, retry = true) => {
     const opts = { ...options, headers: { ...(options.headers || {}) } };
@@ -149,6 +159,7 @@ export function AuthProvider({ children }) {
     login,
     logout,
     refreshAndLoadUser,
+    updateUserInContext, // expose hàm cập nhật user
     fetchWithAuth,
   };
 

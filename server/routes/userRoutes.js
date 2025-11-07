@@ -1,17 +1,37 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const userController = require('../controllers/userController');
-const { protect } = require('../middlewares/authMiddleware'); // chỉ cần bảo vệ, KHÔNG bó hẹp admin
-const { updateMeRules, changePasswordRules } = require('../middlewares/userValidator');
+const userController = require("../controllers/userController");
+const { protect, authorize } = require("../middlewares/authMiddleware");
+const {
+  // self
+  updateMeRules,
+  changePasswordRules,
+  // list/filter
+  listUsersQueryRules,
+  // generic (không dùng :id)
+  genericUpdateProfileRules,
+  genericChangePasswordRules,
+  genericActivateRules,
+  // create employee
+  createEmployeeRules,
+} = require("../middlewares/userValidator");
 
-// Bất kỳ user đã đăng nhập đều dùng được
-router.get('/me', protect, userController.getMe);
+// ---- Self service (GIỮ NGUYÊN HÀNH VI HIỆN TẠI) ----
+router.get("/me", protect, userController.getMe);
+router.put("/me", protect, updateMeRules, userController.updateMe);
+router.patch("/me/password", protect, changePasswordRules, userController.changeMyPassword);
 
-// Cập nhật hồ sơ của chính mình
-router.put('/me', protect, updateMeRules, userController.updateMe);
+// ---- Admin: danh sách ----
+router.get("/customers", protect, authorize(1), listUsersQueryRules, userController.listCustomers);
+router.get("/employees", protect, authorize(1), listUsersQueryRules, userController.listEmployees);
 
-// Đổi mật khẩu
-router.patch('/me/password', protect, changePasswordRules, userController.changeMyPassword);
+// ---- Admin: thêm nhân viên mới (role=2, ép cứng ở BE) ----
+router.post("/employees", protect, authorize(1), createEmployeeRules, userController.createEmployee);
+
+// ---- Generic: KHÔNG dùng :id, BE tự lấy từ token; Admin có thể chỉ định id trong body ----
+router.put("/profile", protect, genericUpdateProfileRules, userController.genericUpdateProfile);
+router.patch("/password", protect, genericChangePasswordRules, userController.genericChangePassword);
+router.patch("/activate", protect, authorize(1), genericActivateRules, userController.genericActivate);
 
 module.exports = router;

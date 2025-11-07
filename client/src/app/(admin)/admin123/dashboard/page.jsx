@@ -9,8 +9,7 @@ import {
   BarChart2,
   ExternalLink,
 } from "lucide-react";
-// Đường dẫn đã sửa: đi ra 3 cấp (khỏi dashboard, admin123, (admin)) để vào app, rồi vào components
-import StatCard from "../../../../components/admin123/StatCard";
+import StatCard from "@/components/admin123/StatCard";
 
 // Đây là Server Component
 export default function DashboardPage() {

@@ -56,7 +56,7 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
         <SidebarItem
           icon={<LayoutDashboard className="h-5 w-5" />}
           text="Dashboard"
-          href="/admin123"
+          href="/admin123/dashboard"
           isCollapsed={isCollapsed}
         />
         <SidebarItem
@@ -84,7 +84,7 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
         <SidebarItem
           icon={<User className="h-5 w-5" />}
           text="Thông tin tài khoản"
-          href="/admin123/settings"
+          href="/admin123/account"
           isCollapsed={isCollapsed}
         />
         <button
