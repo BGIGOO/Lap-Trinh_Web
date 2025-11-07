@@ -1,6 +1,6 @@
 const { body, query } = require("express-validator");
 
-// ====== Self (/me) ======
+// ===== /me (giữ nguyên tinh thần cũ) =====
 const updateMeRules = [
   body("name").optional().isLength({ min: 1, max: 100 }),
   body("email").optional().isEmail(),
@@ -17,41 +17,42 @@ const changePasswordRules = [
   body("new_password").isLength({ min: 8 }),
 ];
 
-// ====== List filter (customers/employees) ======
+// ===== List filter (MỚI): name/email/phone/address/created_at/is_active + page/limit/sort =====
 const listUsersQueryRules = [
+  query("name").optional().isString().trim(),
+  query("email").optional().isString().trim(),
+  query("phone").optional().isString().trim(),
+  query("address").optional().isString().trim(),
+  // created_at: YYYY-MM-DD -> lọc theo ngày (DATE(created_at) = ?)
+  query("created_at").optional().isISO8601().withMessage("created_at phải là YYYY-MM-DD"),
+  query("is_active").optional().isIn(["0", "1"]).toInt(),
   query("page").optional().isInt({ min: 1 }).toInt(),
   query("limit").optional().isInt({ min: 1, max: 100 }).toInt(),
-  query("search").optional().isString().trim(),
-  query("is_active").optional().isIn(["0", "1"]).toInt(),
-  query("sort").optional().custom((v) => /^([a-z_]+):(asc|desc)$/i.test(v))
+  query("sort")
+    .optional()
+    .custom((v) => /^([a-z_]+):(asc|desc)$/i.test(v))
     .withMessage("sort không hợp lệ (vd: created_at:desc)"),
 ];
 
-// ====== Generic (không :id) ======
-const genericUpdateProfileRules = [
-  body("id").optional().isInt({ min: 1 }).toInt(), // admin có thể cập nhật hộ
+// ===== Admin cập nhật hồ sơ người khác (BẮT BUỘC id) =====
+const adminUpdateProfileRules = [
+  body("id").isInt({ min: 1 }).toInt(),
   body("name").optional().isLength({ min: 1, max: 100 }),
   body("email").optional().isEmail(),
   body("phone").optional().isLength({ min: 8, max: 20 }),
   body("address").optional().isLength({ max: 255 }),
   body("avatar").optional().isURL(),
-  body("is_active").optional().isInt({ min: 0, max: 1 }), // chỉ admin mới được, check ở controller
+  body("is_active").optional().isInt({ min: 0, max: 1 }), // admin được phép
   body("role").not().exists(),
   body("password_hash").not().exists(),
 ];
 
-const genericChangePasswordRules = [
-  body("id").optional().isInt({ min: 1 }).toInt(),       // admin reset cho NV
-  body("old_password").optional().isString(),            // self sẽ bắt buộc trong controller
-  body("new_password").isLength({ min: 8 }),
+// ===== Admin toggle activate (chỉ id, cấm id=1 ở controller) =====
+const adminActivateRules = [
+  body("id").isInt({ min: 1 }).toInt(),
 ];
 
-const genericActivateRules = [
-  body("id").isInt({ min: 1 }).toInt(),                  // bắt buộc chỉ định user mục tiêu
-  body("is_active").optional().isInt({ min: 0, max: 1 }),// nếu không gửi -> toggle
-];
-
-// ====== Create employee ======
+// ===== Tạo nhân viên =====
 const createEmployeeRules = [
   body("name").isLength({ min: 1, max: 100 }),
   body("username").isLength({ min: 3, max: 100 }),
@@ -61,15 +62,14 @@ const createEmployeeRules = [
   body("address").optional().isLength({ max: 255 }),
   body("avatar").optional().isURL(),
   body("is_active").optional().isInt({ min: 0, max: 1 }),
-  body("role").not().exists(), // role ép cứng ở BE
+  body("role").not().exists(),
 ];
 
 module.exports = {
   updateMeRules,
   changePasswordRules,
   listUsersQueryRules,
-  genericUpdateProfileRules,
-  genericChangePasswordRules,
-  genericActivateRules,
+  adminUpdateProfileRules,
+  adminActivateRules,
   createEmployeeRules,
 };

@@ -77,6 +77,12 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
           href="/admin123/customers"
           isCollapsed={isCollapsed}
         />
+        <SidebarItem
+          icon={<Users className="h-5 w-5" />}
+          text="Nhân viên"
+          href="/admin123/employee"
+          isCollapsed={isCollapsed}
+        />
       </nav>
 
       {/* Toggle Button & Settings */}

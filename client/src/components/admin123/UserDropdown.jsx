@@ -20,7 +20,6 @@ export default function UserDropdown({ user, logout, onClose }) {
     };
   }, [dropdownRef, onClose]);
 
-  // Giả sử user object có 'fullName' và 'email'
   // Sử dụng optional chaining '?' để an toàn hơn
   const displayName = user?.name || "Admin";
   const isActive = user?.is_active;
