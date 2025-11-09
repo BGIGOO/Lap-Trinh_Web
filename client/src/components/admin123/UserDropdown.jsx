@@ -59,14 +59,14 @@ export default function UserDropdown({ user, logout, onClose }) {
           <UserCircle2 className="h-5 w-5 mr-3" />
           <span>Tài khoản của tôi</span>
         </Link>
-        <Link
+        {/* <Link
           href="/admin123/settings" // Cập nhật đường dẫn nếu cần
           onClick={onClose}
           className="flex items-center px-3 py-2 text-[#475d5b] hover:bg-[#f2f7f5] rounded-lg transition-colors"
         >
           <Settings className="h-5 w-5 mr-3" />
           <span>Cài đặt</span>
-        </Link>
+        </Link> */}
         <button
           onClick={() => {
             onClose();

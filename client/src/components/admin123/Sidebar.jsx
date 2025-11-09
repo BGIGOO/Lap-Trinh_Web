@@ -6,7 +6,8 @@ import {
   LayoutDashboard,
   ShoppingCart,
   Users,
-  Settings,
+  IdCard,
+  LineChart,
   ChevronLeft,
   ChevronRight,
   Package,
@@ -47,39 +48,49 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
             isCollapsed ? "text-base" : "text-2xl"
           }`}
         >
-          {isCollapsed ? <LayoutDashboard className="h-5 w-5" /> : "DASHBOARD"}
+           {/* * Sửa 1: Thêm flex-shrink-0 cho icon ở logo
+             */}
+          {isCollapsed ? <LayoutDashboard className="h-5 w-5 flex-shrink-0" /> : "DASHBOARD"}
         </div>
       </div>
 
       {/* Navigation Links */}
       <nav className="flex-1 p-4 space-y-2">
+        {/* * Sửa 2: Thêm flex-shrink-0 cho tất cả icon
+         */}
         <SidebarItem
-          icon={<LayoutDashboard className="h-5 w-5" />}
+          icon={<LayoutDashboard className="h-5 w-5 flex-shrink-0" />}
           text="Dashboard"
           href="/admin123/dashboard"
           isCollapsed={isCollapsed}
         />
+          <SidebarItem
+          icon={<LineChart className="h-5 w-5 flex-shrink-0" />}
+          text="Thống Kê"
+          href="/admin123/statistics"
+          isCollapsed={isCollapsed}
+        />
         <SidebarItem
-          icon={<ShoppingCart className="h-5 w-5" />}
+          icon={<ShoppingCart className="h-5 w-5 flex-shrink-0" />}
           text="Đơn hàng"
           href="/admin123/orders"
           isCollapsed={isCollapsed}
         />
         <SidebarItem
-          icon={<Package className="h-5 w-5" />}
+          icon={<Package className="h-5 w-5 flex-shrink-0" />}
           text="Sản phẩm"
           href="/admin123/products"
           isCollapsed={isCollapsed}
         />
         <SidebarItem
-          icon={<Users className="h-5 w-5" />}
+          icon={<Users className="h-5 w-5 flex-shrink-0" />}
           text="Khách hàng"
           href="/admin123/customers"
           isCollapsed={isCollapsed}
         />
         <SidebarItem
-          icon={<Users className="h-5 w-5" />}
-          text="Nhân viên"
+          icon={<IdCard className="h-5 w-5 flex-shrink-0" />}
+          text="Quản Lý Nhân viên"
           href="/admin123/employee"
           isCollapsed={isCollapsed}
         />
@@ -88,12 +99,13 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
       {/* Toggle Button & Settings */}
       <div className="p-4 border-t border-gray-200">
         <SidebarItem
-          icon={<User className="h-5 w-5" />}
-          text="Thông tin tài khoản"
+           /* Sửa 3: Thêm flex-shrink-0 cho icon tài khoản */
+          icon={<User className="h-5 w-5 flex-shrink-0" />}
+          text="Quản Lý Tài Khoản "
           href="/admin123/account"
           isCollapsed={isCollapsed}
         />
-        <button
+        {/* <button
           onClick={toggleSidebar}
           className="flex items-center justify-center w-full mt-4 p-3 text-[#00473e] rounded-lg bg-gray-100 hover:bg-gray-200"
         >
@@ -102,7 +114,7 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
           ) : (
             <ChevronLeft className="h-5 w-5" />
           )}
-        </button>
+        </button> */}
       </div>
     </aside>
   );

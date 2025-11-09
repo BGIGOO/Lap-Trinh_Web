@@ -13,6 +13,7 @@ import StatCard from "@/components/admin123/StatCard";
 
 // Đây là Server Component
 export default function DashboardPage() {
+  const { user } = useAuth();
   // Dữ liệu mẫu cho danh sách hoạt động
   const recentActivities = [
     {
@@ -45,7 +46,7 @@ export default function DashboardPage() {
       <div className="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
         <div>
           <h1 className="text-3xl font-bold text-[#00473e]">
-            Chào mừng trở lại, Admin!
+            Chào mừng trở lại, {user?.name.split(' ').pop()}
           </h1>
           <p className="text-base text-[#475d5b] mt-1">
             Đây là tổng quan nhanh về cửa hàng của bạn.

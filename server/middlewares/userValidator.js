@@ -6,7 +6,10 @@ const updateMeRules = [
   body("email").optional().isEmail(),
   body("phone").optional().isLength({ min: 8, max: 20 }),
   body("address").optional().isLength({ max: 255 }),
-  body("avatar").optional().isURL(),
+  body('avatar')
+  .optional({ checkFalsy: true }) // Cho phép giá trị là "", null, undefined
+  .isURL()                      // Nhưng nếu nó CÓ GIÁ TRỊ, thì phải là URL
+  .withMessage('Avatar phải là URL hợp lệ'),  
   body("role").not().exists(),
   body("is_active").not().exists(),
   body("password_hash").not().exists(),
@@ -41,7 +44,10 @@ const adminUpdateProfileRules = [
   body("email").optional().isEmail(),
   body("phone").optional().isLength({ min: 8, max: 20 }),
   body("address").optional().isLength({ max: 255 }),
-  body("avatar").optional().isURL(),
+  body('avatar')
+  .optional({ checkFalsy: true }) // Cho phép giá trị là "", null, undefined
+  .isURL()                      // Nhưng nếu nó CÓ GIÁ TRỊ, thì phải là URL
+  .withMessage('Avatar phải là URL hợp lệ'),
   body("is_active").optional().isInt({ min: 0, max: 1 }), // admin được phép
   body("role").not().exists(),
   body("password_hash").not().exists(),
@@ -60,7 +66,9 @@ const createEmployeeRules = [
   body("password").isLength({ min: 8 }),
   body("phone").optional().isLength({ min: 8, max: 20 }),
   body("address").optional().isLength({ max: 255 }),
-  body("avatar").optional().isURL(),
+  body('avatar')
+  .optional({ checkFalsy: true }) // Cho phép giá trị là "", null, undefined
+  .isURL(),                      // Nhưng nếu nó CÓ GIÁ TRỊ, thì phải là URL
   body("is_active").optional().isInt({ min: 0, max: 1 }),
   body("role").not().exists(),
 ];

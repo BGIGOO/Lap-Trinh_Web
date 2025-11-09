@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext"; // Giả định context path
 import {
-    User,
-    Save,
+  User,
+  Save,
   Users,
   Search,
   Plus,
@@ -25,90 +25,12 @@ import {
   ArrowUpDown,
 } from "lucide-react";
 
-// Hook helper (debounce)
-function useDebounce(value, delay) {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-  return debouncedValue;
-}
-
-// Modal Component
-const Modal = ({ isOpen, onClose, title, children }) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-center p-4">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
-        <div className="flex justify-between items-center p-5 border-b border-gray-200">
-          <h3 className="text-xl font-semibold text-[#00473e]">{title}</h3>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-        <div className="overflow-y-auto p-6">{children}</div>
-      </div>
-    </div>
-  );
-};
-
-// Input Component
-const FormInput = ({ id, name, label, type = "text", value, onChange, icon, autoComplete = "off", required = false }) => (
-  <div>
-    <label htmlFor={id} className="block text-sm font-medium text-[#475d5b] mb-1">
-      {label} {required && <span className="text-red-500">*</span>}
-    </label>
-    <div className="relative">
-      <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-        {icon || <User className="h-5 w-5 text-gray-400" />}
-      </span>
-      <input
-        type={type}
-        id={id}
-        name={name}
-        value={value}
-        onChange={onChange}
-        autoComplete={autoComplete}
-        required={required}
-        className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#faae2b] focus:border-transparent"
-      />
-    </div>
-  </div>
-);
-
-// Toggle Component
-const ToggleSwitch = ({ id, label, checked, onChange, name }) => (
-  <div className="flex items-center">
-    <div className="flex items-center h-5">
-      <input
-        id={id}
-        name={name}
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        className="form-checkbox h-5 w-5 text-[#00473e] rounded focus:ring-[#faae2b]"
-      />
-    </div>
-    <div className="ml-3 text-sm">
-      <label htmlFor={id} className="font-medium text-[#475d5b]">
-        {label}
-      </label>
-      <p className="text-xs text-gray-500">
-        {checked ? "Tài khoản đang được kích hoạt." : "Tài khoản đang bị vô hiệu hóa."}
-      </p>
-    </div>
-  </div>
-);
-
+// Tách ra hook
+import { useDebounce } from "@/hooks/useDebounce"; 
+// Tách ra components
+import { Modal } from "@/components/admin123/Modal";
+import { FormInput } from "@/components/admin123/FormInput";
+import { ToggleSwitch } from "@/components/admin123/ToggleSwitch";
 
 export default function EmployeePage() {
   const { fetchWithAuth } = useAuth();
@@ -129,7 +51,7 @@ export default function EmployeePage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
-  const debouncedFilters = useDebounce(filters, 500);
+  const debouncedFilters = useDebounce(filters, 800);
 
   // Hàm tải dữ liệu
   const fetchEmployees = useCallback(async () => {
@@ -406,7 +328,7 @@ export default function EmployeePage() {
                     </div>
                   </th>
                   <th scope="col" className="px-6 py-3 text-right">
-                    Hành động
+                    Cập Nhật Thông Tin
                   </th>
                 </tr>
               </thead>

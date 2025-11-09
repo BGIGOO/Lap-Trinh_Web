@@ -7,8 +7,6 @@ export const Modal = ({ isOpen, onClose, title, children }) => {
 
   return (
     // SỬA LỖI:
-    // Thay vì "bg-black bg-opacity-50", 
-    // chúng ta dùng "bg-[rgba(0,0,0,0.5)]" (màu đen, mờ 50%)
     // Đây là cú pháp JIT của Tailwind, chắc chắn sẽ hoạt động.
     <div className="fixed inset-0 bg-[rgba(0,0,0,0.5)] z-40 flex justify-center items-center p-4">
       {/* Đây là nội dung Modal */}

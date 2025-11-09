@@ -23,11 +23,11 @@ import {
 } from "lucide-react";
 
 // Tách ra hook
-import { useDebounce } from "@/utils/useDebounce"; 
+import { useDebounce } from "@/hooks/useDebounce"; 
 // Tách ra components
-import { Modal } from "@/components/private/Modal";
-import { FormInput } from "@/components/private/FormInput";
-import { ToggleSwitch } from "@/components/private/ToggleSwitch";
+import { Modal } from "@/components/admin123/Modal";
+import { FormInput } from "@/components/admin123/FormInput";
+import { ToggleSwitch } from "@/components/admin123/ToggleSwitch";
 // Tách ra hàm helper
 import { isToday } from "@/utils/isToday";
 
@@ -50,7 +50,7 @@ export default function CustomersPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
-  const debouncedFilters = useDebounce(filters, 500);
+  const debouncedFilters = useDebounce(filters, 800);
 
   // Hàm tải dữ liệu
   const fetchCustomers = useCallback(async () => {
@@ -283,7 +283,7 @@ export default function CustomersPage() {
                     </div>
                   </th>
                   <th scope="col" className="px-6 py-3 text-right">
-                    Hành động
+                    Cập Nhật Thông Tin
                   </th>
                 </tr>
               </thead>

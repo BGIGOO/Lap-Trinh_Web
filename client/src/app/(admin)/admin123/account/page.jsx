@@ -179,7 +179,7 @@ export default function AccountPage() {
     <div className="p-6 md:p-8">
       {/* Tiêu đề */}
       <h1 className="text-3xl font-bold text-[#00473e] mb-6">
-        Tài khoản của tôi
+        Quản Lý Tài Khoản
       </h1>
 
       {/* Lưới nội dung */}
