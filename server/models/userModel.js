@@ -11,6 +11,17 @@ exports.findById = async (id) => {
   return rows[0] || null;
 };
 
+exports.findByEmail = async (email) => {
+  const [rows] = await db.query(
+    `SELECT id, name, username, email, phone, address, avatar, is_active, role, created_at, updated_at, password_hash
+     FROM users
+     WHERE email = ?
+     LIMIT 1`,
+    [email]
+  );
+  return rows[0] || null;
+};
+
 exports.getPasswordHash = async (userId) => {
   const [rows] = await db.query(`SELECT password_hash FROM users WHERE id = ? LIMIT 1`, [userId]);
   return rows[0]?.password_hash || null;
