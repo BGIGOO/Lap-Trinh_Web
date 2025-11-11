@@ -1,4 +1,5 @@
 const Voucher = require("../models/voucherModel");
+const db = require("../config/db");
 
 exports.getAll = async (req, res) => {
     const data = await Voucher.getAll();
@@ -62,38 +63,34 @@ exports.delete = async (req, res) => {
 
 exports.apply = async (req, res) => {
     try {
-        const { code, cart_items, total_amount } = req.body;
+        const { cart_id, voucher_code } = req.body;
 
-        if (!code || !cart_items || cart_items.length === 0) {
+        if (!cart_id || !voucher_code) {
             return res.status(400).json({
                 success: false,
-                message:
-                    "Thiếu dữ liệu: cần có mã voucher và danh sách sản phẩm trong giỏ hàng",
+                message: "Thiếu dữ liệu: cần cart_id và voucher_code",
             });
         }
 
-        // Tìm voucher theo mã
+        // 🔍 Lấy thông tin voucher
         const [rows] = await db.query("SELECT * FROM vouchers WHERE code = ?", [
-            code,
+            voucher_code,
         ]);
         const voucher = rows[0];
-
         if (!voucher)
             return res
                 .status(404)
                 .json({ success: false, message: "Mã voucher không tồn tại" });
 
-        // Kiểm tra trạng thái hoạt động
         if (!voucher.is_active)
-            return res.status(400).json({
-                success: false,
-                message: "Mã voucher đã bị vô hiệu hóa",
-            });
+            return res
+                .status(400)
+                .json({ success: false, message: "Voucher đã bị vô hiệu hóa" });
 
-        // Kiểm tra hạn sử dụng
+        // ⏳ Kiểm tra thời hạn
         const now = new Date();
         const start = new Date(voucher.start_date);
-        const end = new Date(voucher.end_date);
+        const end = voucher.end_date ? new Date(voucher.end_date) : null;
         if (now < start)
             return res.status(400).json({
                 success: false,
@@ -104,36 +101,33 @@ exports.apply = async (req, res) => {
                 .status(400)
                 .json({ success: false, message: "Voucher đã hết hạn" });
 
-        // Kiểm tra số lượng mã còn lại
-        if (voucher.used_count >= voucher.quantity)
+        // 📦 Lấy giỏ hàng + sản phẩm
+        const [cartRows] = await db.query("SELECT * FROM carts WHERE id = ?", [
+            cart_id,
+        ]);
+        const cart = cartRows[0];
+        if (!cart)
+            return res
+                .status(404)
+                .json({ success: false, message: "Không tìm thấy giỏ hàng" });
+
+        const [cartItems] = await db.query(
+            "SELECT product_id, quantity, price FROM cart_items WHERE cart_id = ?",
+            [cart_id]
+        );
+
+        if (!cartItems.length)
             return res
                 .status(400)
-                .json({ success: false, message: "Voucher đã được dùng hết" });
+                .json({ success: false, message: "Giỏ hàng trống" });
 
-        // Lấy danh sách sản phẩm áp dụng cho voucher (nếu có)
-        const [voucherProducts] = await db.query(
-            "SELECT product_id FROM voucher_products WHERE voucher_id = ?",
-            [voucher.id]
+        // 💰 Tính tổng đơn hàng
+        const total_amount = cartItems.reduce(
+            (sum, item) => sum + item.quantity * item.price,
+            0
         );
-        const productIds = voucherProducts.map((v) => v.product_id);
 
-        // Kiểm tra sản phẩm trong giỏ có được áp dụng không
-        let eligibleItems = [];
-        if (productIds.length > 0) {
-            eligibleItems = cart_items.filter((item) =>
-                productIds.includes(item.product_id)
-            );
-            if (eligibleItems.length === 0)
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Voucher không áp dụng cho sản phẩm nào trong giỏ hàng",
-                });
-        } else {
-            eligibleItems = cart_items; // Áp dụng toàn bộ
-        }
-
-        // Kiểm tra giá trị tối thiểu
+        // 🧮 Kiểm tra giá trị tối thiểu
         if (total_amount < voucher.min_order_value) {
             return res.status(400).json({
                 success: false,
@@ -141,7 +135,7 @@ exports.apply = async (req, res) => {
             });
         }
 
-        // Tính tiền giảm
+        // 💵 Tính tiền giảm
         let discount = 0;
         if (voucher.discount_type === "percent") {
             discount = (total_amount * voucher.discount_value) / 100;
@@ -157,21 +151,27 @@ exports.apply = async (req, res) => {
 
         const finalAmount = Math.max(total_amount - discount, 0);
 
-        // Trả kết quả
+        // 🔄 Cập nhật cart
+        await db.query(
+            "UPDATE carts SET voucher_code = ?, discount = ?, final_price = ? WHERE id = ?",
+            [voucher.code, discount, finalAmount, cart_id]
+        );
+
+        // ✅ Trả kết quả
         res.json({
             success: true,
             message: "Áp dụng voucher thành công",
             data: {
-                code: voucher.code,
+                voucher_code: voucher.code,
                 discount_type: voucher.discount_type,
-                discount_value: voucher.discount_value,
+                discount_value: Number(voucher.discount_value),
                 discount_applied: discount,
                 total_before: total_amount,
                 total_after: finalAmount,
             },
         });
     } catch (error) {
-        console.error(error);
+        console.error("❌ Voucher error:", error);
         res.status(500).json({
             success: false,
             message: "Lỗi server khi áp dụng voucher",
