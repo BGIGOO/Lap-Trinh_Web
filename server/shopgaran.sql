@@ -91,6 +91,33 @@ CREATE TABLE IF NOT EXISTS voucher_products (
     ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+CREATE TABLE carts (
+  id CHAR(36) PRIMARY KEY,                         -- UUID
+  user_id INT DEFAULT NULL,
+  total_quantity INT DEFAULT 0,
+  total_price DECIMAL(12,2) DEFAULT 0,
+  discount DECIMAL(12,2) DEFAULT 0,
+  final_price DECIMAL(12,2) DEFAULT 0,
+  voucher_code VARCHAR(50) DEFAULT NULL,
+  status ENUM('pending','checked_out','cancelled') DEFAULT 'pending',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+-- Xóa tạm FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL để chạy
+
+CREATE TABLE cart_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  cart_id CHAR(36) NOT NULL,
+  product_id INT NOT NULL,
+  quantity INT DEFAULT 1,
+  price DECIMAL(12,2) DEFAULT 0,
+  total DECIMAL(12,2) GENERATED ALWAYS AS (quantity * price) STORED,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (cart_id) REFERENCES carts(id) ON DELETE CASCADE,
+  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+
 CREATE TABLE refresh_tokens (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,

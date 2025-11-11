@@ -8,6 +8,8 @@ export default function Home() {
     return (
         <>
             <Banner></Banner>
+            {/* <ProductShipping></ProductShipping> */}
+            <ProductList></ProductList>
         </>
     );
 }

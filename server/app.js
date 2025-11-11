@@ -14,6 +14,7 @@ const productRoutes = require("./routes/productRoutes");
 const addonGroupRoutes = require("./routes/addonGroupRoutes");
 const addonOptionRoutes = require("./routes/addonOptionRoutes");
 const voucherRoutes = require("./routes/voucherRoutes");
+const cartRoutes = require("./routes/cartRoutes");
 
 // (Chúng ta sẽ thêm authRoutes ở bước sau)
 const authRoutes = require("./routes/authRoutes");
@@ -28,7 +29,7 @@ app.use(cors(corsOptions));
 app.use(express.json()); // Để đọc req.body (JSON)
 app.use(cookieParser()); // Để đọc req.cookies (cho refresh/logout)
 app.use("/uploads", express.static("uploads")); // Đã có
-app.use(morgan('dev')); // Ghi log các request lên console
+
 // (Route VÍ DỤ MỚI)
 const userRoutes = require("./routes/userRoutes"); // <--- 1. REQUIRE FILE MỚI
 
@@ -38,7 +39,8 @@ app.use("/api/addon-groups", addonGroupRoutes);
 app.use("/api/addon-options", addonOptionRoutes);
 app.use("/api/vouchers", voucherRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
+app.use("/api/users", userRoutes); // <--- 2. SỬ DỤNG ROUTE MỚI
+app.use("/api/carts", cartRoutes);
 
 // 404
 app.use((req, res) => {

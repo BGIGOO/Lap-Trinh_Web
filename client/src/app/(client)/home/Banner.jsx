@@ -1,114 +1,73 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination, Autoplay } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 import img1 from "@/assets/1.jpg";
 import img2 from "@/assets/2.jpg";
 import img3 from "@/assets/3.jpg";
 
-// Map index -> image (works with static imports)
-function getSrc(n) {
-    const m = ((n % 3) + 3) % 3;
-    if (m === 0) return img1;
-    if (m === 1) return img2;
-    return img3;
-}
+const images = [img1, img2, img3];
 
 export default function Banner() {
-    const [idx, setIdx] = useState(0);
-
-    const prev = () => setIdx((i) => (i - 1 + 3) % 3);
-    const next = () => setIdx((i) => (i + 1) % 3);
-
-    const leftIdx = (idx - 1 + 3) % 3;
-    const midIdx = idx;
-    const rightIdx = (idx + 1) % 3;
-
     return (
-        <section className="py-2 md:py-4">
-            {/* full-bleed */}
-            <div className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen">
-                <div className="relative h-[260px] md:h-[340px] px-2 md:px-4">
-                    <div className="flex items-stretch h-full relative">
-                        {/* Left (hidden on mobile) */}
-                        <div className="hidden md:block basis-1/4 flex-[1_0_0] opacity-60 scale-95 transition-all duration-500 z-0">
-                            <div className="h-full rounded-2xl overflow-hidden bg-[#FFF2E0] shadow-sm relative">
+        <section className="py-4 md:py-4">
+            <div className="max-w-7xl mx-auto px-6">
+                <Swiper
+                    modules={[Pagination, Autoplay]}
+                    slidesPerView={1}
+                    loop={true}
+                    pagination={{
+                        clickable: true,
+                        dynamicBullets: true,
+                    }}
+                    autoplay={{
+                        delay: 4000,
+                        disableOnInteraction: false,
+                    }}
+                    className="rounded-2xl overflow-hidden shadow-md"
+                >
+                    {images.map((src, i) => (
+                        <SwiperSlide key={i}>
+                            <div className="relative w-full h-[240px] md:h-[380px] bg-[#FFF2E0] group">
                                 <Image
-                                    src={getSrc(leftIdx)}
-                                    alt="slide left"
+                                    src={src}
+                                    alt={`slide ${i + 1}`}
                                     fill
-                                    className="object-cover pointer-events-none"
-                                    sizes="(min-width: 768px) 25vw, 100vw"
+                                    className="object-cover"
+                                    sizes="100vw"
                                     priority
                                 />
+
+                                <div
+                                    className="
+                    absolute inset-0 flex flex-col items-center justify-center 
+                    opacity-0 group-hover:opacity-100 
+                    bg-black/15 group-hover:bg-black/15 
+                    transition-all duration-500
+                  "
+                                >
+                                    <Link
+                                        href="/order"
+                                        className="
+                      bg-[#FC4126] text-white text-sm md:text-base font-semibold uppercase 
+                      rounded-full px-6 py-2 md:px-8 md:py-3 
+                      hover:bg-[#ff6b47] transition-all shadow-lg
+                      translate-y-4 group-hover:translate-y-0 duration-500
+                    "
+                                    >
+                                        Đặt hàng ngay
+                                    </Link>
+                                </div>
                             </div>
-                        </div>
-
-                        {/* Center */}
-                        <div className="relative basis-1/2 flex-[2_0_0] opacity-100 scale-100 transition-all duration-500 z-20">
-                            <div className="h-full rounded-2xl overflow-hidden bg-[#FFF2E0] shadow-sm relative">
-                                <Image
-                                    src={getSrc(midIdx)}
-                                    alt="slide center"
-                                    fill
-                                    className="object-cover pointer-events-none"
-                                    sizes="(min-width: 768px) 50vw, 100vw"
-                                    priority
-                                />
-                            </div>
-
-                            {/* Prev */}
-                            <button
-                                onClick={prev}
-                                aria-label="Ảnh trước"
-                                className="
-                  absolute top-1/2 -translate-y-1/2
-                  left-3 md:left-0
-                  translate-x-0 md:-translate-x-1/2
-                  w-9 h-9 md:w-12 md:h-12
-                  rounded-full bg-[#FFAF5A]/70 md:bg-[#FFAF5A]
-                  hover:bg-[#FFAF5A]/90 md:hover:bg-[#FFAF5A]
-                  text-white grid place-items-center shadow z-30 cursor-pointer
-                "
-                            >
-                                <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
-                            </button>
-
-                            {/* Next */}
-                            <button
-                                onClick={next}
-                                aria-label="Ảnh sau"
-                                className="
-                  absolute top-1/2 -translate-y-1/2
-                  right-3 md:right-0
-                  translate-x-0 md:translate-x-1/2
-                  w-9 h-9 md:w-12 md:h-12
-                  rounded-full bg-[#FFAF5A]/70 md:bg-[#FFAF5A]
-                  hover:bg-[#FFAF5A]/90 md:hover:bg-[#FFAF5A]
-                  text-white grid place-items-center shadow z-30 cursor-pointer
-                "
-                            >
-                                <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
-                            </button>
-                        </div>
-
-                        {/* Right (hidden on mobile) */}
-                        <div className="hidden md:block basis-1/4 flex-[1_0_0] opacity-60 scale-95 transition-all duration-500 z-0">
-                            <div className="h-full rounded-2xl overflow-hidden bg-[#FFF2E0] shadow-sm relative">
-                                <Image
-                                    src={getSrc(rightIdx)}
-                                    alt="slide right"
-                                    fill
-                                    className="object-cover pointer-events-none"
-                                    sizes="(min-width: 768px) 25vw, 100vw"
-                                    priority
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                        </SwiperSlide>
+                    ))}
+                </Swiper>
             </div>
         </section>
     );
