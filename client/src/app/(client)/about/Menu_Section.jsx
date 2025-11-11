@@ -140,7 +140,7 @@ export default function MenuSection() {
         </Link>
       </div>
 
-      <div className="flex justify-center gap-20 overflow-x-auto px-6 pb-10">
+      <div className="flex justify-center gap-15 overflow-x-auto px-6 pb-10">
         {/* Ảnh 1 */}
         <div className="relative w-[241px] h-[366px] flex-shrink-0 rounded-2xl overflow-hidden">
           <Image
