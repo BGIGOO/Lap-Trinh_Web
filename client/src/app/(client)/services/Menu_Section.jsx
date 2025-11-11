@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function MenuSection() {
   return (
     <section>
-      <div className="flex justify-center gap-15 overflow-x-auto px-6 pb-10">
+      <div className="flex justify-center gap-15 overflow-x-auto px-6 pb-20 pt-20">
         {/* Ảnh 1 */}
         <div className="relative w-[241px] h-[366px] flex-shrink-0 rounded-2xl overflow-hidden">
           <Image

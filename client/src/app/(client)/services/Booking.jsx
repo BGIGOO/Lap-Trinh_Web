@@ -1,10 +1,18 @@
+"use client";
 import Image from "next/image";
+import { Protest_Strike } from "next/font/google";
+
+// import font
+const protest = Protest_Strike({
+  subsets: ["latin"],
+  weight: "400",
+});
 
 export default function Booking() {
   return (
-    <section className="py-16 bg-white text-center">
+    <section className={`py-16 bg-white text-center ${protest.className}`}>
       {/* TIÊU ĐỀ */}
-      <h2 className="text-[#FC4126] font-extrabold text-4xl uppercase leading-tight">
+      <h2 className="text-[#FC4126] font-extrabold text-[50px] uppercase leading-tight">
         Dịch vụ đặt bàn CrispC
         <br />
         <span className="text-[#FC4126]">“Bùng vị mọi khoảnh khắc”</span>
@@ -16,20 +24,22 @@ export default function Booking() {
           <Image
             src="/Services/1.png"
             alt="CrispC 1"
-            width={220}
+            width={249}
             height={311}
             className="object-cover w-full h-full"
           />
         </div>
+
         <div className="w-[260px] h-[325px] overflow-hidden rounded-2xl">
           <Image
             src="/Services/2.png"
             alt="CrispC 2"
-            width={220}
+            width={260}
             height={325}
             className="object-cover w-full h-full"
           />
         </div>
+
         <div className="w-[256px] h-[323px] overflow-hidden rounded-2xl">
           <Image
             src="/Services/3.png"
@@ -39,11 +49,12 @@ export default function Booking() {
             className="object-cover w-full h-full"
           />
         </div>
+
         <div className="w-[246px] h-[326px] overflow-hidden rounded-2xl">
           <Image
             src="/Services/4.png"
             alt="CrispC 4"
-            width={220}
+            width={246}
             height={326}
             className="object-cover w-full h-full"
           />
