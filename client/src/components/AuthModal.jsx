@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
+// Bạn không cần import ForgotPasswordModal ở đây
 
-export default function AuthModal({ open, onClose }) {
+// <-- THAY ĐỔI: Thêm prop `onOpenForgotPassword`
+export default function AuthModal({ open, onClose, onOpenForgotPassword }) {
   const [tab, setTab] = useState("login");
 
   if (!open) return null;
@@ -57,7 +59,14 @@ export default function AuthModal({ open, onClose }) {
         </div>
 
         <div className="px-6 pb-12">
-          {tab === "login" ? <LoginForm onClose={onClose} /> : <SignupForm />}
+          {tab === "login" ? (
+            <LoginForm
+              onClose={onClose}
+              onOpenForgotPassword={onOpenForgotPassword} // <-- THAY ĐỔI: Truyền prop này xuống LoginForm
+            />
+          ) : (
+            <SignupForm />
+          )}
         </div>
       </div>
     </div>
@@ -104,7 +113,8 @@ function PrimaryButton({ children, ...props }) {
 }
 
 /* ======================= LOGIN FORM ======================= */
-function LoginForm({ onClose }) {
+// <-- THAY ĐỔI: Nhận prop `onOpenForgotPassword`
+function LoginForm({ onClose, onOpenForgotPassword }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -125,13 +135,12 @@ function LoginForm({ onClose }) {
 
       if (!res.ok) throw new Error(data.message || "Đăng nhập thất bại");
 
-      // Lưu token và user vào localStorage
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
       alert("Đăng nhập thành công!");
-      onClose?.(); // đóng modal sau khi đăng nhập
-      window.location.reload(); // reload nếu bạn muốn update header, giỏ hàng, ...
+      onClose?.(); 
+      window.location.reload(); 
     } catch (err) {
       setError(err.message);
     } finally {
@@ -173,6 +182,7 @@ function LoginForm({ onClose }) {
         <div className="text-right">
           <button
             type="button"
+            onClick={onOpenForgotPassword} // <-- THAY ĐỔI: Gắn sự kiện onClick vào đây
             className="text-sm font-semibold text-red-600 cursor-pointer"
           >
             Quên mật khẩu
@@ -189,6 +199,7 @@ function LoginForm({ onClose }) {
 
 /* ======================= SIGNUP FORM ======================= */
 function SignupForm() {
+  // ... (Không có gì thay đổi ở đây)
   return (
     <form className="mx-auto w-full max-w-[350px]">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
