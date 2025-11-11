@@ -1,34 +1,51 @@
-// middleware.js (ở gốc project)
 import { NextResponse } from 'next/server';
 
-export function middleware(req) {
-  // Log sẽ xuất hiện trên TERMINAL, không phải F12 của trình duyệt
-  //onsole.log('[MW] ngoai');
+export async function middleware(req) {
+  const { pathname } = req.nextUrl;
 
-  const pathname = req.nextUrl.pathname;
+  // Lấy refreshToken từ cookie (httpOnly)
+  const refreshToken = req.cookies.get('refreshToken')?.value;
 
-  // cho qua tài nguyên tĩnh & API (tránh tự chặn /api)
-  if (
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/api') ||
-    pathname === '/favicon.ico'
-  ) {
-    return NextResponse.next();
+  // ====== ADMIN ZONE ======
+  if (pathname.startsWith('/admin123')) {
+    // Nếu không có token mà không phải đang ở trang login
+    if (!refreshToken && pathname !== '/admin123/login') {
+      const url = req.nextUrl.clone();
+      url.pathname = '/admin123/login';
+      return NextResponse.redirect(url);
+    }
+
+    // Nếu đã có token mà cố truy cập lại trang login
+    if (refreshToken && pathname === '/admin123/login') {
+      const url = req.nextUrl.clone();
+      url.pathname = '/admin123/dashboard';
+      return NextResponse.redirect(url);
+    }
   }
 
-  // cho phép trang login
-  if (pathname === '/admin123/login' || pathname === '/employee123/login') {
-    return NextResponse.next();
+  // ====== EMPLOYEE ZONE ======
+  if (pathname.startsWith('/employee')) {
+    if (!refreshToken && pathname !== '/employee/login') {
+      const url = req.nextUrl.clone();
+      url.pathname = '/employee/login';
+      return NextResponse.redirect(url);
+    }
+
+    if (refreshToken && pathname === '/employee/login') {
+      const url = req.nextUrl.clone();
+      url.pathname = '/employee/dashboard';
+      return NextResponse.redirect(url);
+    }
   }
 
-  // bảo vệ khu /admin123 và /employee123
-  // if (pathname.startsWith('/admin123') || pathname.startsWith('/employee123')) {
-  //   const token = req.cookies.get(process.env.SESSION_COOKIE_NAME || 'token')?.value;
-  //   if (!token) {
-  //     const login = pathname.startsWith('/admin123') ? '/admin123/login' : '/employee123/login';
-  //     return NextResponse.redirect(new URL(login, req.url));
-  //   }
-  // }
-
+  // Các route khác (public) → cho qua
   return NextResponse.next();
 }
+
+// Middleware này chỉ chạy với các đường dẫn sau
+export const config = {
+  matcher: [
+    '/admin123/:path*',
+    '/employee/:path*',
+  ],
+};

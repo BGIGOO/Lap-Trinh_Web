@@ -5,11 +5,14 @@ const jwt = require('jsonwebtoken');
  * @param {number} userId - ID của user
  * @param {number} role - Role ID của user (từ bảng users)
  */
-const generateAccessToken = (userId, role) => {
+const generateAccessToken = (userId, role, expiresIn) => {
+  const opts = {};
+  if (expiresIn) opts.expiresIn = expiresIn;
+  else opts.expiresIn = process.env.JWT_ACCESS_EXPIRES;
   return jwt.sign(
-    { userId, role }, // Nội dung (payload) của token
+    { userId, role }, // payload
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_ACCESS_EXPIRES }
+    opts
   );
 };
 
