@@ -20,8 +20,6 @@ const userRoutes = require("./routes/userRoutes");
 const promotionRoutes = require("./routes/promotionRoutes");
 
 
-
-
 // --- Middlewares ---
 const corsOptions = {
   origin: process.env.CLIENT_URL, // Domain frontend (Next.js)
@@ -54,3 +52,5 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`✅ Server chạy tại http://localhost:${PORT}`);
 });
+
+console.log("✅ CLIENT_URL loaded:", process.env.CLIENT_URL);
