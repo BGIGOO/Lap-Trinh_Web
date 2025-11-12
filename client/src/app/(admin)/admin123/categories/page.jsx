@@ -16,9 +16,7 @@ export default function CategoriesPage() {
     setLoading(true);
     const res = await fetch("http://localhost:3001/api/categories");
     const data = await res.json();
-    if (data.success) {
-      setCategories(data.data);
-    }
+    if (data.success) setCategories(data.data);
     setLoading(false);
   };
 
@@ -64,9 +62,7 @@ export default function CategoriesPage() {
               <th className="px-3 py-2 text-left">Mô tả</th>
               <th className="px-3 py-2 text-left">Ảnh</th>
               <th className="px-3 py-2 text-left">Trạng thái</th>
-              <th className="px-3 py-2 text-left">Priority</th>
-              <th className="px-3 py-2 text-left">Ngày tạo</th>
-              <th className="px-3 py-2 text-left">Cập nhật</th>
+              <th className="px-3 py-2 text-center">Ưu tiên</th>
               <th className="px-3 py-2 text-center">Thao tác</th>
             </tr>
           </thead>
@@ -74,7 +70,7 @@ export default function CategoriesPage() {
           <tbody className="text-sm">
             {loading ? (
               <tr>
-                <td colSpan={10} className="text-center py-4">
+                <td colSpan={8} className="text-center py-4">
                   Đang tải...
                 </td>
               </tr>
@@ -111,12 +107,6 @@ export default function CategoriesPage() {
                     )}
                   </td>
                   <td className="px-3 py-2 text-center">{cat.priority}</td>
-                  <td className="px-3 py-2 text-gray-500">
-                    {new Date(cat.created_at).toLocaleString("vi-VN")}
-                  </td>
-                  <td className="px-3 py-2 text-gray-500">
-                    {new Date(cat.updated_at).toLocaleString("vi-VN")}
-                  </td>
                   <td className="px-3 py-2 text-center">
                     <button
                       onClick={() => setEditItem(cat)}
@@ -129,7 +119,7 @@ export default function CategoriesPage() {
               ))
             ) : (
               <tr>
-                <td colSpan={10} className="text-center py-4">
+                <td colSpan={8} className="text-center py-4">
                   Không có danh mục nào
                 </td>
               </tr>
