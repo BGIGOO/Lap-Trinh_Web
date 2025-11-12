@@ -48,9 +48,13 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
             isCollapsed ? "text-base" : "text-2xl"
           }`}
         >
-           {/* * Sửa 1: Thêm flex-shrink-0 cho icon ở logo
-             */}
-          {isCollapsed ? <LayoutDashboard className="h-5 w-5 flex-shrink-0" /> : "DASHBOARD"}
+          {/* * Sửa 1: Thêm flex-shrink-0 cho icon ở logo
+           */}
+          {isCollapsed ? (
+            <LayoutDashboard className="h-5 w-5 flex-shrink-0" />
+          ) : (
+            "DASHBOARD"
+          )}
         </div>
       </div>
 
@@ -64,7 +68,7 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
           href="/admin123/dashboard"
           isCollapsed={isCollapsed}
         />
-          <SidebarItem
+        <SidebarItem
           icon={<LineChart className="h-5 w-5 flex-shrink-0" />}
           text="Thống Kê"
           href="/admin123/statistics"
@@ -76,6 +80,14 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
           href="/admin123/orders"
           isCollapsed={isCollapsed}
         />
+
+        <SidebarItem
+          icon={<Package className="h-5 w-5 flex-shrink-0" />}
+          text="Danh mục"
+          href="/admin123/categories"
+          isCollapsed={isCollapsed}
+        />
+
         <SidebarItem
           icon={<Package className="h-5 w-5 flex-shrink-0" />}
           text="Sản phẩm"
@@ -88,6 +100,7 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
           href="/admin123/customers"
           isCollapsed={isCollapsed}
         />
+
         <SidebarItem
           icon={<IdCard className="h-5 w-5 flex-shrink-0" />}
           text="Quản Lý Nhân viên"
@@ -99,7 +112,7 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
       {/* Toggle Button & Settings */}
       <div className="p-4 border-t border-gray-200">
         <SidebarItem
-           /* Sửa 3: Thêm flex-shrink-0 cho icon tài khoản */
+          /* Sửa 3: Thêm flex-shrink-0 cho icon tài khoản */
           icon={<User className="h-5 w-5 flex-shrink-0" />}
           text="Quản Lý Tài Khoản "
           href="/admin123/account"

@@ -33,15 +33,25 @@ exports.create = async (data) => {
     return { id: result.insertId, ...data };
 };
 
+
 // Cập nhật danh mục
 exports.update = async (id, data) => {
-    const { name, description, slug, image_url, is_active, priority } = data;
+    let { name, description, slug, image_url, is_active, priority } = data;
+
+    // Nếu không có ảnh mới, để image_url = null để MySQL dùng IFNULL giữ nguyên ảnh cũ
+    if (!image_url || image_url === "") {
+        image_url = null;
+    }
+
     const [result] = await db.query(
         `UPDATE categories 
-     SET name=?, description=?, slug=?, image_url=IFNULL(?, image_url),
-         is_active=?, priority=? 
-     WHERE id=?`,
+         SET name=?, description=?, slug=?, 
+             image_url=IFNULL(?, image_url), 
+             is_active=?, priority=? 
+         WHERE id=?`,
         [name, description, slug, image_url, is_active ?? 1, priority ?? 0, id]
     );
+
     return result.affectedRows > 0;
 };
+
