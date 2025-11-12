@@ -1,8 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaTimes } from "react-icons/fa";
 
 export default function EditProduct({ product, onClose, onSuccess }) {
+  const [categories, setCategories] = useState([]);
+
   const [form, setForm] = useState({
     id: product.id,
     category_id: product.category_id,
@@ -19,10 +21,23 @@ export default function EditProduct({ product, onClose, onSuccess }) {
     product?.image_url ? `http://localhost:3001${product.image_url}` : null
   );
 
-  // Handle thay đổi input
+  // 🔹 Lấy danh sách danh mục
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("http://localhost:3001/api/categories");
+        const data = await res.json();
+        if (data.success) setCategories(data.data);
+      } catch (err) {
+        console.error("Lỗi khi tải danh mục:", err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  // 🔹 Xử lý thay đổi input
   const handleChange = (e) => {
     const { name, value, files, type } = e.target;
-
     if (type === "file") {
       setForm((prev) => ({ ...prev, image_url: files[0] }));
       setPreview(URL.createObjectURL(files[0]));
@@ -31,10 +46,9 @@ export default function EditProduct({ product, onClose, onSuccess }) {
     }
   };
 
-  // Gửi dữ liệu
+  // 🔹 Gửi form cập nhật
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const fd = new FormData();
 
     fd.append("category_id", form.category_id);
@@ -42,10 +56,10 @@ export default function EditProduct({ product, onClose, onSuccess }) {
     fd.append("original_price", form.original_price);
     fd.append("sale_price", form.sale_price);
     fd.append("description", form.description);
-    fd.append("is_active", Number(form.is_active)); // 0 hoặc 1
+    fd.append("is_active", Number(form.is_active));
     fd.append("priority", form.priority);
 
-    // ✅ Nếu không upload ảnh mới → giữ ảnh cũ
+    // Nếu không upload ảnh mới → giữ ảnh cũ
     if (typeof form.image_url === "string") {
       fd.append("image_url", form.image_url);
     } else {
@@ -56,16 +70,15 @@ export default function EditProduct({ product, onClose, onSuccess }) {
       method: "PUT",
       body: fd,
     });
-
     const data = await res.json();
 
     if (data.success) {
-      alert("Cập nhật sản phẩm thành công!");
+      alert("✅ Cập nhật sản phẩm thành công!");
       onSuccess();
       onClose();
     } else {
-      alert("Lỗi: " + data.message);
-      console.log("Chi tiết lỗi:", data);
+      alert("❌ Lỗi: " + data.message);
+      console.error("Chi tiết lỗi:", data);
     }
   };
 
@@ -87,18 +100,25 @@ export default function EditProduct({ product, onClose, onSuccess }) {
 
         {/* FORM */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {/* Category ID */}
+          {/* Danh mục */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              ID Danh mục
+              Danh mục
             </label>
-            <input
+            <select
               name="category_id"
               value={form.category_id}
               onChange={handleChange}
               className="border w-full px-3 py-2 rounded"
               required
-            />
+            >
+              <option value="">-- Chọn danh mục --</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Tên sản phẩm */}
@@ -157,38 +177,18 @@ export default function EditProduct({ product, onClose, onSuccess }) {
           </div>
 
           {/* Ảnh hiện tại */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ảnh hiện tại
-            </label>
-            {preview && (
-              <div className="flex flex-col gap-2">
-                <img
-                  src={preview}
-                  alt="preview"
-                  className="w-40 h-40 object-cover rounded-lg border"
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Đường dẫn ảnh */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Đường dẫn ảnh
-            </label>
-            <input
-              name="image_url"
-              value={
-                typeof form.image_url === "string"
-                  ? form.image_url
-                  : product.image_url
-              }
-              onChange={handleChange}
-              className="border w-full px-3 py-2 rounded text-sm text-gray-600"
-              readOnly={typeof form.image_url !== "string"}
-            />
-          </div>
+          {preview && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Ảnh hiện tại
+              </label>
+              <img
+                src={preview}
+                alt="preview"
+                className="w-40 h-40 object-cover rounded-lg border"
+              />
+            </div>
+          )}
 
           {/* Upload ảnh mới */}
           <div>
@@ -219,7 +219,7 @@ export default function EditProduct({ product, onClose, onSuccess }) {
             </select>
           </div>
 
-          {/* Priority */}
+          {/* Ưu tiên */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Mức ưu tiên (priority)
@@ -229,6 +229,8 @@ export default function EditProduct({ product, onClose, onSuccess }) {
               value={form.priority}
               onChange={handleChange}
               className="border w-full px-3 py-2 rounded"
+              type="number"
+              min="0"
             />
           </div>
 

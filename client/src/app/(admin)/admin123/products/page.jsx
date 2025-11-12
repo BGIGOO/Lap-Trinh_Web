@@ -6,28 +6,44 @@ import EditProduct from "./edit";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showAdd, setShowAdd] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [selected, setSelected] = useState(null);
 
-  const fetchProducts = async () => {
+  // Lấy sản phẩm + danh mục
+  const fetchData = async () => {
     try {
-      const res = await fetch("http://localhost:3001/api/products");
-      const data = await res.json();
-      if (data.success) setProducts(data.data);
+      const [resProducts, resCategories] = await Promise.all([
+        fetch("http://localhost:3001/api/products"),
+        fetch("http://localhost:3001/api/categories"),
+      ]);
+
+      const dataProducts = await resProducts.json();
+      const dataCategories = await resCategories.json();
+
+      if (dataProducts.success) setProducts(dataProducts.data);
+      if (dataCategories.success) setCategories(dataCategories.data);
     } catch (err) {
-      console.error("Lỗi khi tải sản phẩm:", err);
+      console.error("Lỗi khi tải dữ liệu:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProducts();
+    fetchData();
   }, []);
 
+  // Hàm lấy tên danh mục
+  const getCategoryName = (id) => {
+    const cat = categories.find((c) => c.id === id);
+    return cat ? cat.name : "Không xác định";
+  };
+
+  // Lọc theo từ khóa
   const filtered = products.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -63,17 +79,23 @@ export default function ProductsPage() {
         <thead className="bg-[#153448] text-white">
           <tr>
             <th className="px-4 py-2 text-left">Tên sản phẩm</th>
+            <th className="px-4 py-2 text-center">Danh mục</th>
             <th className="px-4 py-2 text-center">Giá gốc</th>
             <th className="px-4 py-2 text-center">Giá KM</th>
             <th className="px-4 py-2 text-center">Trạng thái</th>
+            <th className="px-4 py-2 text-center">Ưu tiên</th>
             <th className="px-4 py-2 text-center">Ảnh</th>
+            <th className="px-4 py-2 text-center">Mô tả</th>
             <th className="px-4 py-2 text-center">Chỉnh sửa</th>
           </tr>
         </thead>
         <tbody>
           {filtered.map((p) => (
             <tr key={p.id} className="border-b hover:bg-gray-50">
-              <td className="px-4 py-2">{p.name}</td>
+              <td className="px-4 py-2 font-medium text-[#153448]">{p.name}</td>
+              <td className="px-4 py-2 text-center">
+                {getCategoryName(p.category_id)}
+              </td>
               <td className="px-4 py-2 text-center">{p.original_price}₫</td>
               <td className="px-4 py-2 text-center">{p.sale_price}₫</td>
               <td className="px-4 py-2 text-center">
@@ -85,12 +107,16 @@ export default function ProductsPage() {
                   <span className="text-red-500 font-semibold">Vô hiệu</span>
                 )}
               </td>
+              <td className="px-4 py-2 text-center">{p.priority}</td>
               <td className="px-4 py-2 text-center">
                 <img
                   src={`http://localhost:3001${p.image_url}`}
                   alt={p.name}
-                  className="w-14 h-14 object-cover rounded-lg border"
+                  className="w-14 h-14 object-cover rounded-lg border mx-auto"
                 />
+              </td>
+              <td className="px-4 py-2 text-center max-w-[200px] truncate">
+                {p.description || "-"}
               </td>
               <td className="px-4 py-2 text-center">
                 <button
@@ -110,16 +136,13 @@ export default function ProductsPage() {
 
       {/* Popup Add / Edit */}
       {showAdd && (
-        <AddProduct
-          onClose={() => setShowAdd(false)}
-          onSuccess={fetchProducts}
-        />
+        <AddProduct onClose={() => setShowAdd(false)} onSuccess={fetchData} />
       )}
       {showEdit && (
         <EditProduct
           product={selected}
           onClose={() => setShowEdit(false)}
-          onSuccess={fetchProducts}
+          onSuccess={fetchData}
         />
       )}
     </div>

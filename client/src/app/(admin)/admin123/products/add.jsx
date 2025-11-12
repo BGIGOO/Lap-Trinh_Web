@@ -1,8 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaTimes } from "react-icons/fa";
 
 export default function AddProduct({ onClose, onSuccess }) {
+  const [categories, setCategories] = useState([]);
+
   const [form, setForm] = useState({
     category_id: "",
     name: "",
@@ -13,8 +15,24 @@ export default function AddProduct({ onClose, onSuccess }) {
     is_active: 1, // 1 = kích hoạt
     priority: 100,
   });
+
   const [preview, setPreview] = useState(null);
 
+  // 🔹 Lấy danh sách danh mục
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("http://localhost:3001/api/categories");
+        const data = await res.json();
+        if (data.success) setCategories(data.data);
+      } catch (err) {
+        console.error("Lỗi khi tải danh mục:", err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  // 🔹 Cập nhật form khi nhập
   const handleChange = (e) => {
     const { name, value, files, type } = e.target;
 
@@ -26,6 +44,7 @@ export default function AddProduct({ onClose, onSuccess }) {
     }
   };
 
+  // 🔹 Gửi dữ liệu thêm mới
   const handleSubmit = async (e) => {
     e.preventDefault();
     const fd = new FormData();
@@ -47,12 +66,12 @@ export default function AddProduct({ onClose, onSuccess }) {
     const data = await res.json();
 
     if (data.success) {
-      alert("Thêm sản phẩm thành công!");
+      alert("✅ Thêm sản phẩm thành công!");
       onSuccess();
       onClose();
     } else {
-      alert("Lỗi: " + data.message);
-      console.log("Chi tiết lỗi:", data);
+      alert("❌ Lỗi: " + data.message);
+      console.error("Chi tiết lỗi:", data);
     }
   };
 
@@ -74,18 +93,25 @@ export default function AddProduct({ onClose, onSuccess }) {
 
         {/* FORM */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {/* Category ID */}
+          {/* Danh mục */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              ID Danh mục
+              Danh mục
             </label>
-            <input
+            <select
               name="category_id"
               value={form.category_id}
               onChange={handleChange}
               className="border w-full px-3 py-2 rounded"
               required
-            />
+            >
+              <option value="">-- Chọn danh mục --</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Tên sản phẩm */}
@@ -147,7 +173,7 @@ export default function AddProduct({ onClose, onSuccess }) {
             ></textarea>
           </div>
 
-          {/* Upload ảnh */}
+          {/* Ảnh sản phẩm */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Ảnh sản phẩm
@@ -181,6 +207,21 @@ export default function AddProduct({ onClose, onSuccess }) {
               <option value={1}>Kích hoạt</option>
               <option value={0}>Vô hiệu</option>
             </select>
+          </div>
+
+          {/* Ưu tiên */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Mức ưu tiên (priority)
+            </label>
+            <input
+              type="number"
+              name="priority"
+              value={form.priority}
+              onChange={handleChange}
+              className="border w-full px-3 py-2 rounded"
+              min="0"
+            />
           </div>
 
           {/* Submit */}
