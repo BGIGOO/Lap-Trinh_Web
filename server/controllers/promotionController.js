@@ -231,3 +231,26 @@ exports.activate = async (req, res) => {
     });
   }
 };
+
+exports.getBySlug = async (req, res) => {
+  try {
+    const promo = await Promotion.getBySlug(req.params.slug);
+    if (!promo) {
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: "Không tìm thấy khuyến mãi",
+          data: null,
+        });
+    }
+    res.json({
+      success: true,
+      message: "Lấy khuyến mãi theo slug thành công",
+      data: promo,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ success: false, message: "Lỗi server", data: null });
+  }
+};
