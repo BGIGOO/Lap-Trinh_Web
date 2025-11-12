@@ -20,6 +20,24 @@ exports.getAll = async (req, res) => {
   }
 };
 
+exports.getAllAdmin = async (req, res) => {
+  try {
+    const promotions = await Promotion.getAllAdmin();
+    res.json({
+      success: true,
+      message: "Lấy danh sách khuyến mãi thành công",
+      data: promotions,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server khi lấy danh sách khuyến mãi",
+      data: null,
+    });
+  }
+};
+
 // 📦 Lấy promotion theo ID
 exports.getById = async (req, res) => {
   try {

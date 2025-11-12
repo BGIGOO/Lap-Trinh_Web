@@ -94,6 +94,14 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
           href="/admin123/products"
           isCollapsed={isCollapsed}
         />
+
+        <SidebarItem
+          icon={<Package className="h-5 w-5 flex-shrink-0" />}
+          text="Khuyến mãi"
+          href="/admin123/promotions"
+          isCollapsed={isCollapsed}
+        />
+
         <SidebarItem
           icon={<Users className="h-5 w-5 flex-shrink-0" />}
           text="Khách hàng"

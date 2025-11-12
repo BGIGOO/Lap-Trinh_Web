@@ -22,6 +22,7 @@ const upload = multer({ storage });
 
 // Routes
 router.get("/", promotionController.getAll);
+router.get("/admin", promotionController.getAllAdmin);
 router.get("/slug/:slug", promotionController.getBySlug);
 router.get("/:id", promotionController.getById);
 
