@@ -58,6 +58,7 @@ export default function AddCategory({ onClose, onSuccess }) {
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {/* Tên danh mục */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Tên danh mục
@@ -71,6 +72,7 @@ export default function AddCategory({ onClose, onSuccess }) {
             />
           </div>
 
+          {/* Mô tả */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Mô tả
@@ -84,6 +86,7 @@ export default function AddCategory({ onClose, onSuccess }) {
             />
           </div>
 
+          {/* Ảnh danh mục */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Ảnh danh mục
@@ -103,21 +106,39 @@ export default function AddCategory({ onClose, onSuccess }) {
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Trạng thái
-            </label>
-            <select
-              name="is_active"
-              value={form.is_active}
-              onChange={handleChange}
-              className="border w-full px-3 py-2 rounded"
-            >
-              <option value={1}>Kích hoạt</option>
-              <option value={0}>Vô hiệu</option>
-            </select>
+          {/* Trạng thái + Ưu tiên */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Trạng thái
+              </label>
+              <select
+                name="is_active"
+                value={form.is_active}
+                onChange={handleChange}
+                className="border w-full px-3 py-2 rounded"
+              >
+                <option value={1}>Kích hoạt</option>
+                <option value={0}>Vô hiệu</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Ưu tiên
+              </label>
+              <input
+                type="number"
+                name="priority"
+                value={form.priority}
+                onChange={handleChange}
+                className="border w-full px-3 py-2 rounded"
+                min="0"
+              />
+            </div>
           </div>
 
+          {/* Nút lưu */}
           <button
             type="submit"
             className="mt-2 bg-[#153448] text-white py-2 rounded hover:bg-[#1b4560]"
