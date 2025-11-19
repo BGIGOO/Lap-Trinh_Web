@@ -41,6 +41,12 @@ exports.getCartItems = async (cartId) => {
     }));
 };
 
+exports.deleteCartById = async (cartId) => {
+    await db.query("DELETE FROM cart_items WHERE cart_id = ?", [cartId]);
+    await db.query("DELETE FROM carts WHERE id = ?", [cartId]);
+};
+
+
 // 🟢 Thêm sản phẩm (có options)
 exports.addItem = async (cartId, productId, quantity, price, options = []) => {
     // 1️⃣ Tạo hash duy nhất dựa trên options
