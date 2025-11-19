@@ -18,12 +18,14 @@ const cartRoutes = require("./routes/cartRoutes");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const promotionRoutes = require("./routes/promotionRoutes");
+const orderRoutes = require("./routes/orderRoutes");
+const sepayRoutes = require("./routes/sepayRoutes");
 
 
 // --- Middlewares ---
 const corsOptions = {
-  origin: process.env.CLIENT_URL, // Domain frontend (Next.js)
-  credentials: true,
+    origin: process.env.CLIENT_URL, // Domain frontend (Next.js)
+    credentials: true,
 };
 app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
@@ -42,15 +44,18 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/carts", cartRoutes);
 app.use("/api/promotions", promotionRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/sepay", sepayRoutes);
+
 // --- 404 handler ---
 app.use((req, res) => {
-  res.status(404).json({ message: "Không tìm thấy endpoint này!" });
+    res.status(404).json({ message: "Không tìm thấy endpoint này!" });
 });
 
 // --- Khởi động server ---
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`✅ Server chạy tại http://localhost:${PORT}`);
+    console.log(`✅ Server chạy tại http://localhost:${PORT}`);
 });
 
 console.log("✅ CLIENT_URL loaded:", process.env.CLIENT_URL);
