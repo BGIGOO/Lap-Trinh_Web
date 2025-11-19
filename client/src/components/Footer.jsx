@@ -5,7 +5,7 @@ import { Facebook, Instagram, Music2, AtSign } from "lucide-react";
 export default function Footer() {
   return (
     <footer className="bg-[#FC4126] text-white">
-      <div className="max-w-7xl mx-auto px-6 py-10">
+      <div className="max-w-7xl mx-auto p-6">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {/* ===== LEFT COLUMN ===== */}
           <div className="flex flex-col items-start">
@@ -62,15 +62,9 @@ export default function Footer() {
               1900-1224
             </div>
 
-            <p className="text-sm leading-relaxed">
-              Thời gian hoạt động: 8h00 – 22h00
-              <br />
-              Địa chỉ: 19 Nguyễn Hữu Thọ, Tân Hưng,
-              <br />
-              Tp Hồ Chí Minh
-            </p>
 
-            <ul className="mt-4 space-y-1 text-sm">
+
+            <ul className="space-y-1 text-sm">
               <li>
                 <Link href="/about" className="hover:underline">
                   Về chúng tôi
@@ -130,6 +124,13 @@ export default function Footer() {
                   className="h-10 w-auto object-contain"
                 />
               </div>
+                          <p className="text-sm leading-relaxed mt-4">
+              Thời gian hoạt động: 8h00 – 22h00
+              <br />
+              Địa chỉ: 19 Nguyễn Hữu Thọ, Tân Hưng,
+              <br />
+              Tp Hồ Chí Minh
+            </p>
             </div>
 
             {/* Policies */}
