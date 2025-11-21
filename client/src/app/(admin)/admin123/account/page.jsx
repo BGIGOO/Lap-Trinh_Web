@@ -1,10 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { User, Lock, Save, Loader2, Mail, Phone, Home, Image as ImageIcon } from "lucide-react";
+import {
+  User,
+  Lock,
+  Save,
+  Loader2,
+  Mail,
+  Phone,
+  Home,
+  Image as ImageIcon,
+  Calendar, // Thêm icon lịch
+} from "lucide-react";
 
-// Component con cho Input để dễ dàng tái sử dụng
+// 1. Component Input (Giữ nguyên)
 function FormInput({
   id,
   name,
@@ -17,17 +27,14 @@ function FormInput({
 }) {
   return (
     <div>
-{/* ... existing code ... */}
       <label
         htmlFor={id}
         className="block text-sm font-medium text-[#475d5b] mb-1"
       >
         {label}
       </label>
-{/* ... existing code ... */}
       <div className="relative">
         <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-{/* ... existing code ... */}
           {icon || <User className="h-5 w-5 text-gray-400" />}
         </span>
         <input
@@ -44,21 +51,56 @@ function FormInput({
   );
 }
 
-export default function AccountPage() {
-  const { user, fetchWithAuth, updateUserInContext } = useAuth(); // <-- Lấy updateUserInContext, bỏ refreshAndLoadUser
+// 2. Component Select (Mới thêm để chọn Giới tính)
+function FormSelect({ id, name, label, value, onChange, icon, options }) {
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-[#475d5b] mb-1"
+      >
+        {label}
+      </label>
+      <div className="relative">
+        <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+          {icon}
+        </span>
+        <select
+          id={id}
+          name={name}
+          value={value}
+          onChange={onChange}
+          className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#faae2b] focus:border-transparent bg-white appearance-none"
+        >
+          <option value="">-- Chọn --</option>
+          {options.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
+}
 
-  // State cho Form Thông Tin
+export default function AccountPage() {
+  const { user, fetchWithAuth, updateUserInContext } = useAuth();
+
+  // State Form Thông Tin (Thêm birthday, sex)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     address: "",
     avatar: "",
+    birthday: "", // Mới
+    sex: "",      // Mới
   });
+
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileMessage, setProfileMessage] = useState({ type: "", text: "" });
 
-  // State cho Form Mật Khẩu
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -67,55 +109,63 @@ export default function AccountPage() {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState({ type: "", text: "" });
 
-  // Tải dữ liệu từ context vào form khi user có sẵn
+  // Load data từ Context vào Form
   useEffect(() => {
     if (user) {
+      // Xử lý ngày sinh: DB trả về ISO string (YYYY-MM-DDTHH:mm...), input date cần YYYY-MM-DD
+      const formattedBirthday = user.birthday
+        ? new Date(user.birthday).toISOString().split("T")[0]
+        : "";
+
       setFormData({
         name: user.name || "",
         email: user.email || "",
         phone: user.phone || "",
         address: user.address || "",
         avatar: user.avatar || "",
+        birthday: formattedBirthday,
+        sex: user.sex || "",
       });
     }
   }, [user]);
 
-  // Xử lý thay đổi input cho Form Thông Tin
   const handleProfileChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Xử lý thay đổi input cho Form Mật Khẩu
   const handlePasswordChange = (e) => {
     setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
   };
 
-  // Xử lý Submit Form Thông Tin (PUT /api/users/me)
+  // Submit Thông tin
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     setProfileLoading(true);
     setProfileMessage({ type: "", text: "" });
 
     try {
+      // Chuẩn bị payload: Nếu birthday rỗng thì gửi null để DB không lỗi date format
+      const payload = {
+        ...formData,
+        birthday: formData.birthday ? formData.birthday : null,
+        sex: formData.sex ? formData.sex : null,
+      };
+
       const res = await fetchWithAuth("/api/users/me", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        // Payload này khớp với route.js
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
-      const data = await res.json(); // data = {success: true, message: "...", data: {...}}
+      const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Cập nhật thất bại");
 
-      // SỬA LẠI: Dùng message từ API
       setProfileMessage({
         type: "success",
         text: data.message || "Cập nhật thông tin thành công!",
       });
-      
-      // SỬA LẠI: Cập nhật user ngay lập tức, không cần fetch lại
-      updateUserInContext(data); // data = {success: true, data: {...}}
-      // await refreshAndLoadUser(); // <-- Bỏ dòng này đi
+
+      updateUserInContext(data); // Cập nhật context ngay
     } catch (err) {
       setProfileMessage({ type: "error", text: err.message });
     } finally {
@@ -123,7 +173,7 @@ export default function AccountPage() {
     }
   };
 
-  // Xử lý Submit Form Mật Khẩu (PATCH /api/users/me/password)
+  // Submit Mật khẩu
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     if (passwordData.newPassword !== passwordData.confirmPassword) {
@@ -138,22 +188,19 @@ export default function AccountPage() {
       const res = await fetchWithAuth("/api/users/me/password", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        // Payload này khớp với yêu cầu của bạn (old_password, new_password)
         body: JSON.stringify({
           old_password: passwordData.currentPassword,
           new_password: passwordData.newPassword,
         }),
       });
 
-      const data = await res.json(); // data = {success: true, message: "..."}
+      const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Đổi mật khẩu thất bại");
 
-      // SỬA LẠI: Dùng message từ API
       setPasswordMessage({
         type: "success",
         text: data.message || "Đổi mật khẩu thành công!",
       });
-      // Xóa các trường mật khẩu sau khi thành công
       setPasswordData({
         currentPassword: "",
         newPassword: "",
@@ -166,7 +213,6 @@ export default function AccountPage() {
     }
   };
 
-  // Hiển thị loading nếu user chưa được tải từ context
   if (!user) {
     return (
       <div className="p-8 flex justify-center items-center h-full">
@@ -177,14 +223,12 @@ export default function AccountPage() {
 
   return (
     <div className="p-6 md:p-8">
-      {/* Tiêu đề */}
       <h1 className="text-3xl font-bold text-[#00473e] mb-6">
         Quản Lý Tài Khoản
       </h1>
 
-      {/* Lưới nội dung */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Card Thông tin cá nhân (2/3 chiều rộng) */}
+        {/* Cột trái: Thông tin cá nhân */}
         <div className="lg:col-span-2 bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100">
           <h4 className="text-xl font-semibold text-[#00473e] mb-6 flex items-center">
             <User className="w-5 h-5 mr-2" />
@@ -192,6 +236,7 @@ export default function AccountPage() {
           </h4>
           <form onSubmit={handleProfileSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Tên */}
               <FormInput
                 id="name"
                 name="name"
@@ -200,6 +245,7 @@ export default function AccountPage() {
                 onChange={handleProfileChange}
                 icon={<User className="h-5 w-5 text-gray-400" />}
               />
+              {/* Email (thường không cho sửa, nhưng form này để edit thì ok) */}
               <FormInput
                 id="email"
                 name="email"
@@ -209,6 +255,7 @@ export default function AccountPage() {
                 onChange={handleProfileChange}
                 icon={<Mail className="h-5 w-5 text-gray-400" />}
               />
+              {/* SĐT */}
               <FormInput
                 id="phone"
                 name="phone"
@@ -217,6 +264,7 @@ export default function AccountPage() {
                 onChange={handleProfileChange}
                 icon={<Phone className="h-5 w-5 text-gray-400" />}
               />
+              {/* Địa chỉ */}
               <FormInput
                 id="address"
                 name="address"
@@ -225,6 +273,30 @@ export default function AccountPage() {
                 onChange={handleProfileChange}
                 icon={<Home className="h-5 w-5 text-gray-400" />}
               />
+
+              {/* --- MỚI: Ngày sinh --- */}
+              <FormInput
+                id="birthday"
+                name="birthday"
+                label="Ngày sinh"
+                type="date" // Quan trọng
+                value={formData.birthday}
+                onChange={handleProfileChange}
+                icon={<Calendar className="h-5 w-5 text-gray-400" />}
+              />
+
+              {/* --- MỚI: Giới tính --- */}
+              <FormSelect
+                id="sex"
+                name="sex"
+                label="Giới tính"
+                value={formData.sex}
+                onChange={handleProfileChange}
+                options={["Nam", "Nữ", "Khác"]}
+                icon={<User className="h-5 w-5 text-gray-400" />}
+              />
+
+              {/* Avatar */}
               <div className="md:col-span-2">
                 <FormInput
                   id="avatar"
@@ -237,7 +309,6 @@ export default function AccountPage() {
               </div>
             </div>
 
-            {/* Nút Submit và Thông báo */}
             <div className="flex items-center justify-between mt-6">
               <button
                 type="submit"
@@ -266,7 +337,7 @@ export default function AccountPage() {
           </form>
         </div>
 
-        {/* Card Đổi mật khẩu (1/3 chiều rộng) */}
+        {/* Cột phải: Đổi mật khẩu */}
         <div className="lg:col-span-1 bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100">
           <h4 className="text-xl font-semibold text-[#00473e] mb-6 flex items-center">
             <Lock className="w-5 h-5 mr-2" />
@@ -306,7 +377,6 @@ export default function AccountPage() {
               />
             </div>
 
-            {/* Nút Submit và Thông báo */}
             <div className="mt-6">
               <button
                 type="submit"

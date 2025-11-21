@@ -1,142 +1,96 @@
 const db = require("../config/db");
 
-const buildWhere = (parts) => (parts.length ? `WHERE ${parts.join(" AND ")}` : "");
-
+// 1. Tìm user theo ID
 exports.findById = async (id) => {
-  const [rows] = await db.query(
-    `SELECT id, name, username, email, phone, address, avatar, is_active, role, created_at, updated_at
-     FROM users WHERE id = ? LIMIT 1`,
-    [id]
-  );
-  return rows[0] || null;
+  const [rows] = await db.query('CALL sp_get_user_by_id(?)', [id]);
+  return rows[0][0] || null;
 };
 
-exports.findByEmail = async (email) => {
-  const [rows] = await db.query(
-    `SELECT id, name, username, email, phone, address, avatar, is_active, role, created_at, updated_at, password_hash
-     FROM users
-     WHERE email = ?
-     LIMIT 1`,
-    [email]
-  );
-  return rows[0] || null;
-};
-
+// 2. Lấy hash password (để đổi pass)
 exports.getPasswordHash = async (userId) => {
-  const [rows] = await db.query(`SELECT password_hash FROM users WHERE id = ? LIMIT 1`, [userId]);
-  return rows[0]?.password_hash || null;
+  const [rows] = await db.query('CALL sp_get_password_hash(?)', [userId]);
+  return rows[0][0]?.password_hash || null;
 };
 
+// 3. Update Password
 exports.updatePassword = async (userId, newHash) => {
-  const [rs] = await db.query(
-    `UPDATE users SET password_hash = ?, updated_at = NOW() WHERE id = ?`,
-    [newHash, userId]
-  );
-  return rs.affectedRows;
+  await db.query('CALL sp_change_password(?, ?)', [userId, newHash]);
 };
 
+// 4. Check trùng lặp khi Update (Trừ bản thân ra)
 exports.findDupForUpdate = async (email, phone, userId) => {
-  const cond = [];
-  const params = [];
-  if (email) { cond.push("email = ?"); params.push(email); }
-  if (phone) { cond.push("phone = ?"); params.push(phone); }
-  if (!cond.length) return [];
   const [rows] = await db.query(
-    `SELECT id, email, phone FROM users WHERE (${cond.join(" OR ")}) LIMIT 5`,
-    params
+    'CALL sp_check_update_conflict(?, ?, ?)', 
+    [userId, email, phone]
   );
-  return rows.filter((r) => r.id !== Number(userId));
+  return rows[0]; // Trả về mảng các user bị trùng
 };
 
-exports.updateProfile = async (userId, fields) => {
-  const ALLOWED = ["name", "email", "phone", "address", "avatar"];
-  const set = [];
-  const params = [];
-  for (const k of ALLOWED) {
-    if (fields[k] !== undefined) { set.push(`${k} = ?`); params.push(fields[k]); }
-  }
-  if (!set.length) return 0;
-  set.push("updated_at = NOW()");
-  const [rs] = await db.query(`UPDATE users SET ${set.join(", ")} WHERE id = ?`, [...params, userId]);
-  return rs.affectedRows;
+// 5. Update Profile (User tự sửa)
+// Chỉ truyền các field user được phép, còn lại null
+exports.updateProfile = async (userId, { name, phone, address, avatar, birthday, sex }) => {
+  const [rows] = await db.query(
+    'CALL sp_update_profile(?, ?, ?, ?, ?, ?, ?, ?)',
+    [
+      userId, 
+      name, 
+      phone, 
+      address, 
+      avatar, 
+      birthday, 
+      sex, 
+      null // is_active: user thường không được sửa cái này -> truyền NULL
+    ]
+  );
+  return rows[0][0].affected;
 };
 
-// ===== List theo role với FILTER MỚI =====
-exports.listUsers = async ({
-  role,
-  page = 1,
-  limit = 20,
-  sort = "created_at:desc",
-  name,
-  email,
-  phone,
-  address,
-  created_at, // YYYY-MM-DD
-  is_active,
-}) => {
-  const where = [];
-  const params = [];
+// 6. Admin Update User (Sửa hết)
+exports.adminUpdateUser = async (userId, { name, phone, address, avatar, birthday, sex, is_active }) => {
+  const [rows] = await db.query(
+    'CALL sp_update_profile(?, ?, ?, ?, ?, ?, ?, ?)',
+    [
+      userId, 
+      name, 
+      phone, 
+      address, 
+      avatar, 
+      birthday, 
+      sex, 
+      is_active // Admin được quyền truyền giá trị vào đây
+    ]
+  );
+  return rows[0][0].affected;
+};
 
-  if (role) { where.push(`role = ?`); params.push(role); }
-  if (typeof is_active === "number") { where.push(`is_active = ?`); params.push(is_active); }
-  if (name) { where.push(`name LIKE ?`); params.push(`%${name}%`); }
-  if (email) { where.push(`email LIKE ?`); params.push(`%${email}%`); }
-  if (phone) { where.push(`phone LIKE ?`); params.push(`%${phone}%`); }
-  if (address) { where.push(`address LIKE ?`); params.push(`%${address}%`); }
-  if (created_at) { where.push(`DATE(created_at) = ?`); params.push(created_at.slice(0, 10)); }
-
-  const whereSql = buildWhere(where);
-
-  const [col, dir] = (sort || "created_at:desc").split(":");
-  const safeCol = ["created_at","name","email","username","phone","role","is_active","updated_at"].includes(col)
-    ? col
-    : "created_at";
-  const safeDir = (dir || "desc").toUpperCase() === "ASC" ? "ASC" : "DESC";
-
+// 7. List Users (Search)
+exports.listUsers = async ({ role, keyword, is_active, page, limit }) => {
   const offset = (page - 1) * limit;
-
+  
+  // rows[0] là kết quả list, rows[1] là kết quả count total
   const [rows] = await db.query(
-    `SELECT id, name, username, email, phone, address, avatar, is_active, role, created_at, updated_at
-     FROM users ${whereSql}
-     ORDER BY ${safeCol} ${safeDir}
-     LIMIT ? OFFSET ?`,
-    [...params, Number(limit), Number(offset)]
+    'CALL sp_search_users(?, ?, ?, ?, ?)',
+    [role, keyword || null, is_active, limit, offset]
   );
 
-  const [[{ total }]] = await db.query(
-    `SELECT COUNT(*) AS total FROM users ${whereSql}`,
-    params
-  );
+  const list = rows[0];
+  const total = rows[1][0].total;
 
-  return { rows, total };
+  return { rows: list, total };
 };
 
-exports.adminUpdateUser = async (userId, fields) => {
-  const ALLOWED = ["name", "email", "phone", "address", "avatar", "is_active"];
-  const set = [];
-  const params = [];
-  for (const k of ALLOWED) {
-    if (fields[k] !== undefined) { set.push(`${k} = ?`); params.push(fields[k]); }
-  }
-  if (!set.length) return 0;
-  set.push("updated_at = NOW()");
-  const [rs] = await db.query(`UPDATE users SET ${set.join(", ")} WHERE id = ?`, [...params, userId]);
-  return rs.affectedRows;
-};
-
-exports.findDupForCreate = async (email, username, phone) => {
+// 8. Tạo Employee
+exports.createEmployee = async ({ name, email, password_hash, phone, address, avatar, birthday, sex, is_active }) => {
   const [rows] = await db.query(
-    `SELECT id, email, username, phone FROM users WHERE email = ? OR username = ? OR phone = ? LIMIT 1`,
-    [email, username, phone]
+    'CALL sp_create_employee(?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [name, email, password_hash, phone, address, avatar, birthday, sex, is_active]
   );
-  return rows[0] || null;
+  return { id: rows[0][0].new_id };
 };
 
-exports.createEmployee = async ({ name, username, email, password_hash, phone, address, avatar, is_active = 1 }) => {
-  const [rs] = await db.query(
-    `INSERT INTO users (name, username, email, password_hash, phone, address, avatar, is_active, role, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 2, NOW(), NOW())`,
-    [name, username, email, password_hash, phone || null, address || null, avatar || null, Number(is_active)]
-  );
-  return { id: rs.insertId };
+// Helper check duplicate create (Dùng lại SP check register conflict ở bài authModel)
+exports.findDupForCreate = async (email, phone) => {
+   // Lưu ý: sp_check_register_conflict đã tạo ở bài trước
+   const [rows] = await db.query('CALL sp_check_register_conflict(?, ?)', [email, phone]);
+   return rows[0];
 };

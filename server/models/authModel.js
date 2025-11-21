@@ -1,94 +1,96 @@
 const db = require("../config/db");
 
 /**
- * Tìm user bằng phone, email, HOẶC username
- * (Dùng cho việc kiểm tra khi đăng ký)
+ * Kiểm tra trùng lặp Email hoặc Phone khi đăng ký
+ * Sử dụng SP: sp_check_register_conflict
  */
-exports.findUserByCredentials = async (phone, email, username) => {
-    const [existing] = await db.query(
-        'SELECT phone, email, username FROM users WHERE phone = ? OR email = ? OR username = ?',
-        [phone, email, username]
+exports.findUserByCredentials = async (email, phone) => {
+    // Gọi Stored Procedure
+    const [rows] = await db.query(
+        'CALL sp_check_register_conflict(?, ?)',
+        [email, phone]
     );
-    // Trả về mảng các user tìm thấy (có thể rỗng)
-    return existing;
+    // rows[0] là danh sách các bản ghi tìm thấy từ câu SELECT trong SP
+    return rows[0]; 
 };
 
 /**
  * Tạo user mới
+ * Sử dụng SP: sp_create_user
  */
-exports.createUser = async (name, username, email, password_hash, phone) => {
-    const [result] = await db.query(
-        'INSERT INTO users (name, username, email, password_hash, phone) VALUES (?, ?, ?, ?, ?)',
-        [name, username, email, password_hash, phone]
-    );
-    // Trả về ID của user vừa tạo
-    return result.insertId;
-};
-
-/**
- * Tìm user bằng username
- * (Dùng cho việc đăng nhập)
- */
-exports.findUserByUsername = async (username) => {
+exports.createUser = async (name, email, password_hash, phone, birthday, sex) => {
     const [rows] = await db.query(
-        'SELECT id, name, username, email, password_hash, role, avatar, is_active FROM users WHERE username = ?',
-        [username]
+        'CALL sp_create_user(?, ?, ?, ?, ?, ?)',
+        [name, email, password_hash, phone, birthday, sex]
     );
-    // Trả về user object (hoặc undefined nếu không tìm thấy)
-    return rows[0];
+    // SP trả về: SELECT LAST_INSERT_ID() as new_id
+    // rows[0] là kết quả SELECT, rows[0][0] là dòng đầu tiên
+    return rows[0][0].new_id;
 };
 
 /**
- * Xóa TẤT CẢ refresh token của một user
- * (Dùng khi đăng nhập, để vô hiệu hóa các phiên cũ)
+ * Tìm user bằng Email để đăng nhập
+ * Sử dụng SP: sp_get_user_for_login
+ */
+exports.findUserByEmail = async (email) => {
+    const [rows] = await db.query(
+        'CALL sp_get_user_for_login(?)',
+        [email]
+    );
+    // Trả về object user hoặc undefined
+    return rows[0][0];
+};
+
+/**
+ * Tìm user bằng ID (Dùng cho Refresh Token)
+ * Sử dụng SP: sp_get_user_by_id
+ */
+exports.findUserById = async (userId) => {
+    const [rows] = await db.query(
+        'CALL sp_get_user_by_id(?)',
+        [userId]
+    );
+    return rows[0][0];
+};
+
+/**
+ * Xóa TẤT CẢ refresh token của user
+ * Sử dụng SP: sp_delete_user_tokens
  */
 exports.deleteUserRefreshTokens = async (userId) => {
-    await db.query('DELETE FROM refresh_tokens WHERE user_id = ?', [userId]);
+    await db.query('CALL sp_delete_user_tokens(?)', [userId]);
 };
 
 /**
- * Lưu refresh token mới vào DB
+ * Lưu refresh token mới
+ * Sử dụng SP: sp_save_refresh_token
  */
 exports.saveRefreshToken = async (userId, token, expires_at) => {
     await db.query(
-        'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES (?, ?, ?)',
+        'CALL sp_save_refresh_token(?, ?, ?)',
         [userId, token, expires_at]
     );
 };
 
 /**
  * Tìm refresh token
- * (Dùng cho chức năng /refresh)
+ * Sử dụng SP: sp_find_refresh_token
  */
 exports.findRefreshToken = async (token) => {
-    const [tokenRows] = await db.query(
-        'SELECT user_id, expires_at FROM refresh_tokens WHERE token = ?',
+    const [rows] = await db.query(
+        'CALL sp_find_refresh_token(?)',
         [token]
     );
-    // Trả về token object (hoặc undefined)
-    return tokenRows[0];
+    return rows[0][0];
 };
 
 /**
- * Tìm user bằng ID
- * (Dùng cho /refresh để kiểm tra user còn tồn tại/active không)
- */
-exports.findUserById = async (userId) => {
-    const [userRows] = await db.query(
-        'SELECT role, is_active FROM users WHERE id = ?',
-        [userId]
-    );
-    // Trả về user object (hoặc undefined)
-    return userRows[0];
-};
-
-/**
- * Xóa một refresh token cụ thể
- * (Dùng cho việc đăng xuất)
+ * Xóa một refresh token cụ thể (Logout)
+ * Sử dụng SP: sp_delete_specific_token
  */
 exports.deleteRefreshToken = async (token) => {
     await db.query(
-        'DELETE FROM refresh_tokens WHERE token = ?',
+        'CALL sp_delete_specific_token(?)',
         [token]
     );
 };
