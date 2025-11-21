@@ -57,7 +57,7 @@ export default function ProductList() {
     };
 
     return (
-        <section className="max-w-5xl mx-auto px-4 md:px-0 my-4">
+        <section className="max-w-6xl mx-auto px-4 md:px-0 my-4">
             <div className="flex flex-col items-center gap-2 mb-4">
                 <h2 className="text-2xl md:text-[28px] font-extrabold tracking-wide text-[#FF523B]">
                     CHICKEN TODAY

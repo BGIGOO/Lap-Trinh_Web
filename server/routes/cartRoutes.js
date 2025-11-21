@@ -21,6 +21,8 @@ router.post(
 // 🟢 Lấy giỏ hàng
 router.get("/:id", cartController.getCart);
 
+router.delete("/:cart_id", cartController.deleteCart);
+
 // 🟢 Thêm sản phẩm
 router.post(
     "/:id/items",

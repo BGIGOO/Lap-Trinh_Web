@@ -45,6 +45,32 @@ exports.getCart = async (req, res) => {
     }
 };
 
+exports.deleteCart = async (req, res) => {
+    try {
+        const { cart_id } = req.params;
+
+        if (!cart_id) {
+            return res.status(400).json({
+                success: false,
+                message: "Thiếu cart_id",
+            });
+        }
+
+        await Cart.deleteCartById(cart_id);
+
+        res.json({
+            success: true,
+            message: "Đã xóa giỏ hàng thành công",
+        });
+    } catch (error) {
+        console.error("❌ Lỗi khi xóa giỏ hàng:", error);
+        res.status(500).json({
+            success: false,
+            message: "Lỗi server khi xóa giỏ hàng",
+        });
+    }
+};
+
 // ✅ Thêm sản phẩm
 exports.addItem = async (req, res) => {
     try {
