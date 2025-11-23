@@ -161,8 +161,19 @@ exports.adminActivateToggle = async (req, res) => {
   if (!u) return res.status(404).json({ message: "User không tồn tại." });
 
   const nextActive = u.is_active === 1 ? 0 : 1;
-  // Dùng luôn hàm update admin
-  await User.adminUpdateUser(id, { is_active: nextActive });
+
+  // SỬA LỖI: Truyền lại toàn bộ thông tin cũ của user vào hàm update
+  // Nếu chỉ truyền is_active, các trường khác (như phone) sẽ bị null/rỗng -> Gây lỗi Duplicate entry
+  await User.adminUpdateUser(id, { 
+    name: u.name,
+    // Quan trọng: Nếu phone đang là chuỗi rỗng '', hãy chuyển về null để tránh lỗi unique
+    phone: u.phone || null, 
+    address: u.address,
+    avatar: u.avatar,
+    birthday: u.birthday,
+    sex: u.sex,
+    is_active: nextActive 
+  });
 
   const refreshed = await User.findById(id);
   delete refreshed.password_hash;
