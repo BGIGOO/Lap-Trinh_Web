@@ -12,6 +12,9 @@ router.post(
     orderController.createOrder
 );
 
+router.get("/", orderController.getAllOrders);
+
+
 // 🟢 Xem chi tiết đơn hàng
 router.get("/:id", orderController.getOrder);
 

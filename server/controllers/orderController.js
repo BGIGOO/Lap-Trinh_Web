@@ -171,3 +171,14 @@ exports.deleteOrder = async (req, res) => {
         });
     }
 };
+
+exports.getAllOrders = async (req, res) => {
+  try {
+    const data = await Order.getAllOrders();
+    res.json({ success: true, data });
+  } catch (err) {
+    console.error("Lỗi lấy tất cả đơn hàng:", err);
+    res.status(500).json({ success: false, message: "Lỗi server" });
+  }
+};
+

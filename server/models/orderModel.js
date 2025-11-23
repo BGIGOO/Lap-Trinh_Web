@@ -94,6 +94,17 @@ exports.getOrderById = async (id) => {
     };
 };
 
+// 🟢 Lấy tất cả đơn hàng
+exports.getAllOrders = async () => {
+    const [rows] = await db.query(`
+        SELECT *
+        FROM orders
+        ORDER BY created_at DESC
+    `);
+    return rows;
+};
+
+
 exports.getOrderStatus = async (orderCode) => {
      const [rows] = await db.query(
             `SELECT order_code, payment_status, order_status, final_price 
