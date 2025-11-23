@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { FaEdit } from "react-icons/fa";
-import EditOrder from "./edit"; // popup edit đơn hàng
+import EditOrder from "./edit";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -11,7 +11,15 @@ export default function OrdersPage() {
   const [showEdit, setShowEdit] = useState(false);
   const [selected, setSelected] = useState(null);
 
-  // Lấy danh sách đơn hàng
+  // Mapping trạng thái sang tên tiếng Việt
+  const STATUS_TEXT = {
+    pending: "Đang xử lý",
+    confirmed: "Đã xác nhận",
+    shipping: "Đang giao",
+    completed: "Hoàn thành",
+    cancelled: "Đã hủy",
+  };
+
   const fetchOrders = async () => {
     try {
       const res = await fetch("http://localhost:3001/api/orders");
@@ -28,14 +36,12 @@ export default function OrdersPage() {
     fetchOrders();
   }, []);
 
-  // Lọc theo keyword + trạng thái
   const filtered = orders.filter((o) => {
     const matchSearch =
       o.order_code.toLowerCase().includes(search.toLowerCase()) ||
       o.customer_name.toLowerCase().includes(search.toLowerCase());
 
     const matchStatus = !filterStatus || o.order_status === filterStatus;
-
     return matchSearch && matchStatus;
   });
 
@@ -43,14 +49,12 @@ export default function OrdersPage() {
 
   return (
     <div className="p-6 relative">
-      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-[#153448]">Quản lý đơn hàng</h1>
       </div>
 
-      {/* Search + Filter */}
+      {/* Tìm kiếm + Lọc */}
       <div className="flex flex-col md:flex-row md:items-center gap-3 mb-4">
-        {/* Tìm kiếm */}
         <input
           type="text"
           placeholder="Tìm mã đơn hoặc tên khách..."
@@ -59,7 +63,6 @@ export default function OrdersPage() {
           className="border rounded-lg px-3 py-2 w-full md:w-1/3"
         />
 
-        {/* Lọc trạng thái */}
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
@@ -96,11 +99,15 @@ export default function OrdersPage() {
                 <td className="px-4 py-2 font-medium text-[#153448]">
                   {o.order_code}
                 </td>
+
                 <td className="px-4 py-2 text-center">{o.customer_name}</td>
                 <td className="px-4 py-2 text-center">{o.customer_phone}</td>
+
                 <td className="px-4 py-2 text-center">
                   {o.final_price.toLocaleString()}₫
                 </td>
+
+                {/* Trạng thái thanh toán */}
                 <td className="px-4 py-2 text-center">
                   {o.payment_status === "paid" ? (
                     <span className="text-green-600 font-semibold">
@@ -112,6 +119,8 @@ export default function OrdersPage() {
                     </span>
                   )}
                 </td>
+
+                {/* Trạng thái đơn hàng tiếng Việt */}
                 <td className="px-4 py-2 text-center">
                   {o.order_status === "completed" ? (
                     <span className="text-green-600 font-semibold">
@@ -121,10 +130,11 @@ export default function OrdersPage() {
                     <span className="text-red-500 font-semibold">Đã hủy</span>
                   ) : (
                     <span className="text-orange-500 font-semibold">
-                      {o.order_status}
+                      {STATUS_TEXT[o.order_status]}
                     </span>
                   )}
                 </td>
+
                 <td className="px-4 py-2 text-center">
                   {new Date(o.created_at).toLocaleDateString("vi-VN")}
                 </td>
@@ -153,7 +163,6 @@ export default function OrdersPage() {
         </tbody>
       </table>
 
-      {/* Popup Edit */}
       {showEdit && (
         <EditOrder
           order={selected}

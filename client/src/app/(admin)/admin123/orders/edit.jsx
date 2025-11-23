@@ -5,30 +5,31 @@ import { FaTimes } from "react-icons/fa";
 export default function EditOrder({ order, onClose, onSuccess }) {
   const [detail, setDetail] = useState(null);
 
-  // form state luôn khai báo 1 lần, KHÔNG phụ thuộc detail
+  // Form luôn tạo 1 lần — an toàn Rules of Hooks
   const [form, setForm] = useState({
     order_status: order.order_status,
     payment_status: order.payment_status,
     note: order.note || "",
   });
 
-  // Fetch chi tiết
+  // Fetch chi tiết đơn
   useEffect(() => {
     const fetchDetail = async () => {
       try {
         const res = await fetch(`http://localhost:3001/api/orders/${order.id}`);
         const data = await res.json();
-        if (data.success) setDetail(data.data);
+        if (data.success) {
+          setDetail(data.data);
+        }
       } catch (err) {
-        console.error("Lỗi lấy chi tiết đơn:", err);
+        console.error("Lỗi fetch detail:", err);
       }
     };
 
     fetchDetail();
   }, [order.id]);
 
-  // Khi detail load xong, giữ nguyên giá trị form cũ (hook ko thay đổi)
-  // HOẶC bạn muốn cập nhật theo detail => dùng useEffect
+  // Khi detail có → đồng bộ lại form
   useEffect(() => {
     if (detail) {
       setForm({
@@ -46,14 +47,15 @@ export default function EditOrder({ order, onClose, onSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
+      // Cập nhật trạng thái đơn
       await fetch(`http://localhost:3001/api/orders/${order.id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: form.order_status }),
       });
 
+      // Cập nhật thanh toán
       await fetch(`http://localhost:3001/api/orders/${order.id}/payment`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -64,31 +66,41 @@ export default function EditOrder({ order, onClose, onSuccess }) {
       onSuccess();
       onClose();
     } catch (err) {
-      console.error("Lỗi cập nhật đơn:", err);
-      alert("Lỗi server khi cập nhật đơn hàng.");
+      console.error("Lỗi submit:", err);
+      alert("Lỗi hệ thống.");
     }
   };
 
-  // TẠO JSX loading, không return trước hooks
-  const loadingUI = (
-    <div className="fixed inset-0 flex items-center justify-center bg-white/30 backdrop-blur-[1px] z-50">
-      <div className="bg-white p-6 rounded-xl shadow">Đang tải...</div>
-    </div>
-  );
+  // Hiển thị loading, nhưng không phá thứ tự hook
+  if (!detail) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white/40 backdrop-blur-sm z-50">
+        <div className="bg-white p-6 rounded-xl shadow">Đang tải...</div>
+      </div>
+    );
+  }
 
-  // Nếu chưa có detail => hiển thị loading, NHƯNG KHÔNG RETURN
-  if (!detail) return loadingUI;
+  // Mapping trạng thái sang tiếng Việt
+  const ORDER_STATUS_TEXT = {
+    pending: "Đang xử lý",
+    confirmed: "Đã xác nhận",
+    shipping: "Đang giao",
+    completed: "Hoàn thành",
+    cancelled: "Đã hủy",
+  };
 
-  // ============================
-  // FORM CHỈ RENDER KHI DETAIL CÓ
-  // ============================
+  const PAYMENT_STATUS_TEXT = {
+    unpaid: "Chưa thanh toán",
+    paid: "Đã thanh toán",
+  };
 
   return (
-    <div className="fixed inset-0 bg-white/30 backdrop-blur-[1px] flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl shadow-lg w-full max-w-lg relative p-6">
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-[2px] flex items-center justify-center z-50">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 relative">
+        {/* HEADER */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-[#153448]">
-            Chỉnh sửa đơn hàng: {detail.order_code}
+            Đơn hàng: {detail.order_code}
           </h2>
           <button
             onClick={onClose}
@@ -98,20 +110,21 @@ export default function EditOrder({ order, onClose, onSuccess }) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        {/* FORM */}
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           {/* THÔNG TIN KHÁCH */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Khách hàng
+              Thông tin khách hàng
             </label>
             <div className="border px-3 py-2 rounded bg-gray-50">
               {detail.customer_name} — {detail.customer_phone}
             </div>
           </div>
 
-          {/* ORDER STATUS */}
+          {/* TRẠNG THÁI ĐƠN */}
           <div>
-            <label className="block text-sm mb-1 font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Trạng thái đơn hàng
             </label>
             <select
@@ -128,9 +141,9 @@ export default function EditOrder({ order, onClose, onSuccess }) {
             </select>
           </div>
 
-          {/* PAYMENT STATUS */}
+          {/* TRẠNG THÁI THANH TOÁN */}
           <div>
-            <label className="block text-sm mb-1 font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Thanh toán
             </label>
             <select
@@ -146,7 +159,7 @@ export default function EditOrder({ order, onClose, onSuccess }) {
 
           {/* GHI CHÚ */}
           <div>
-            <label className="block text-sm mb-1 font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Ghi chú
             </label>
             <textarea
@@ -155,17 +168,17 @@ export default function EditOrder({ order, onClose, onSuccess }) {
               onChange={handleChange}
               className="border w-full px-3 py-2 rounded"
               rows="3"
-            ></textarea>
+            />
           </div>
 
-          {/* ITEMS */}
+          {/* SẢN PHẨM */}
           <div>
-            <label className="block text-sm mb-1 font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Sản phẩm trong đơn
             </label>
-            <div className="border rounded p-3 bg-gray-50 max-h-40 overflow-y-auto">
+            <div className="border rounded p-3 bg-gray-50 max-h-48 overflow-y-auto">
               {detail.items.map((it) => (
-                <div key={it.id} className="flex justify-between border-b py-1">
+                <div key={it.id} className="flex justify-between py-1 border-b">
                   <span>
                     {it.product_name} × {it.quantity}
                   </span>
@@ -180,7 +193,7 @@ export default function EditOrder({ order, onClose, onSuccess }) {
           {/* SUBMIT */}
           <button
             type="submit"
-            className="mt-2 bg-[#153448] text-white py-2 rounded hover:bg-[#1b4560]"
+            className="mt-2 bg-[#153448] text-white py-2 rounded hover:bg-[#1b4560] transition"
           >
             Lưu thay đổi
           </button>
