@@ -3,42 +3,66 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const {
     generateAccessToken,
-    generateRefreshToken,
-    getRefreshTokenExpires
+    // generateRefreshToken, // Nếu file tokenUtils không dùng thì có thể bỏ
 } = require('../utils/tokenUtils');
 
 /**
- * @desc    Đăng ký tài khoản mới
+ * @desc    Đăng ký tài khoản mới (Cập nhật: Có birthday, sex, bỏ username)
  * @route   POST /api/auth/register
  */
 const register = async (req, res) => {
-    // (Giữ nguyên toàn bộ code register của bạn)
-    const { username, email, password, phone, name } = req.body;
-    if (!username || !email || !password || !phone || !name) {
+    // 1. Nhận dữ liệu input mới
+    const { email, password, phone, name, birthday, sex } = req.body;
+
+    // 2. Validate cơ bản
+    if (!email || !password || !phone || !name) {
         return res.status(400).json({
-            message: 'Vui lòng cung cấp đủ thông tin: username, password, name, phone, và email.'
+            message: 'Vui lòng cung cấp đủ thông tin: email, password, name, phone.'
         });
     }
+
+    // Validate giới tính (nếu có gửi lên)
+    if (sex && !['Nam', 'Nữ', 'Khác'].includes(sex)) {
+        return res.status(400).json({ message: 'Giới tính không hợp lệ (Nam, Nữ, Khác).' });
+    }
+
     try {
-        const existing = await authModel.findUserByCredentials(phone, email, username);
-        if (existing.length > 0) {
-            if (existing[0].email === email) {
-                return res.status(409).json({ message: 'Email này đã được sử dụng.' });
-            }
-            if (existing[0].username === username) {
-                return res.status(409).json({ message: 'Username này đã được sử dụng.' });
-            }
-            if (existing[0].phone === phone) {
-                return res.status(409).json({ message: 'Số điện thoại này đã được sử dụng.' });
+        // 3. Kiểm tra trùng lặp (Gọi SP)
+        const existing = await authModel.findUserByCredentials(email, phone);
+        
+        // existing là mảng các dòng tìm thấy
+        if (existing && existing.length > 0) {
+            // Duyệt qua để báo lỗi chính xác
+            for (const user of existing) {
+                if (user.email === email) {
+                    return res.status(409).json({ message: 'Email này đã được sử dụng.' });
+                }
+                if (user.phone === phone) {
+                    return res.status(409).json({ message: 'Số điện thoại này đã được sử dụng.' });
+                }
             }
         }
+
+        // 4. Hash password
         const salt = await bcrypt.genSalt(10);
         const password_hash = await bcrypt.hash(password, salt);
-        const userId = await authModel.createUser(name, username, email, password_hash, phone);
+
+        // 5. Tạo User mới (Gọi SP)
+        // Lưu ý: birthday nếu không gửi lên thì để null
+        const userId = await authModel.createUser(
+            name, 
+            email, 
+            password_hash, 
+            phone, 
+            birthday || null, 
+            sex || null
+        );
+
         res.status(201).json({
             message: 'Đăng ký tài khoản thành công!',
             userId: userId
         });
+
     } catch (error) {
         console.error('Lỗi khi đăng ký:', error);
         res.status(500).json({ message: 'Lỗi hệ thống, vui lòng thử lại sau.' });
@@ -46,17 +70,18 @@ const register = async (req, res) => {
 };
 
 /**
- * @desc    Đăng nhập
+ * @desc    Đăng nhập (Cập nhật: Dùng Email)
  * @route   POST /api/auth/login
  */
 const login = async (req, res) => {
-  const { username, password, loginType } = req.body;
+  // 1. Nhận email thay vì username
+  const { email, password, loginType } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ message: 'Vui lòng cung cấp username và password.' });
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Vui lòng cung cấp email và password.' });
   }
 
-  // Chuẩn hoá loginType -> 1/2/3
+  // Chuẩn hoá loginType
   const normalizeLoginType = (lt) => {
     if (lt === undefined || lt === null || lt === '') return null;
     if (typeof lt === 'string') {
@@ -72,31 +97,34 @@ const login = async (req, res) => {
     return null;
   };
 
-  // parse loginType theo “cách B”: bắt buộc có và phải khớp với role
   const lt = normalizeLoginType(loginType);
   if (lt === null) {
     return res.status(400).json({ message: 'Thiếu loginType hoặc loginType không hợp lệ.' });
   }
 
   try {
-    const user = await authModel.findUserByUsername(username);
+    // 2. Tìm user bằng Email (Gọi SP mới)
+    const user = await authModel.findUserByEmail(email);
+
+    // Kiểm tra user tồn tại và active
     if (!user || user.is_active === 0) {
-      return res.status(401).json({ message: 'Username hoặc mật khẩu không đúng.' });
+      return res.status(401).json({ message: 'Email hoặc mật khẩu không đúng.' });
     }
 
+    // 3. So sánh password (Vẫn dùng bcrypt ở Node.js)
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Username hoặc mật khẩu không đúng.' });
+      return res.status(401).json({ message: 'Email hoặc mật khẩu không đúng.' });
     }
 
-    const userRole = Number(user.role); // 1=Admin, 2=Employee, 3=Client
+    const userRole = Number(user.role);
 
-    // ====== CÁCH B: Ép đúng “cổng” theo loginType ======
+    // Kiểm tra Role khớp LoginType
     if (lt !== userRole) {
-      return res.status(403).json({ message: 'Username hoặc mật khẩu không đúng.' });
+      return res.status(403).json({ message: 'Email hoặc mật khẩu không đúng (Sai quyền truy cập).' });
     }
 
-    // Determine access token expiry dựa trên role thực
+    // --- Logic Token giữ nguyên ---
     let accessExpiresIn;
     if (userRole === 1) accessExpiresIn = '15m';
     else if (userRole === 2) accessExpiresIn = '2h';
@@ -104,7 +132,6 @@ const login = async (req, res) => {
 
     const accessToken = generateAccessToken(user.id, userRole, accessExpiresIn);
 
-    // Determine refresh token expiry dựa trên loginType (đã khớp role)
     let refreshExpiresIn;
     if (lt === 1) refreshExpiresIn = '4h';
     else if (lt === 2) refreshExpiresIn = '16h';
@@ -117,7 +144,6 @@ const login = async (req, res) => {
       { expiresIn: refreshExpiresIn }
     );
 
-    // helper tính expires_at để lưu DB
     const computeExpiresAt = (expStr) => {
       const m = String(expStr).match(/^(\d+)(s|m|h|d)?$/);
       if (!m) return new Date(Date.now());
@@ -132,6 +158,7 @@ const login = async (req, res) => {
 
     const refreshTokenExpires = computeExpiresAt(refreshExpiresIn);
 
+    // Gọi SP xóa token cũ và lưu token mới
     await authModel.deleteUserRefreshTokens(user.id);
     await authModel.saveRefreshToken(user.id, refreshToken, refreshTokenExpires);
 
@@ -142,7 +169,7 @@ const login = async (req, res) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: cookieMaxAge,
-      path: '/', // đảm bảo cookie gửi cho mọi route API
+      path: '/',
     });
 
     return res.json({
@@ -151,52 +178,57 @@ const login = async (req, res) => {
       user: {
         id: user.id,
         name: user.name,
-        username: user.username,
-        email: user.email,
+        email: user.email, // Trả về email thay vì username
         role: userRole,
         avatar: user.avatar,
       },
     });
+
   } catch (error) {
     console.error('Lỗi khi đăng nhập:', error);
     return res.status(500).json({ message: 'Lỗi hệ thống, vui lòng thử lại sau.' });
   }
 };
 
-
 /**
  * @desc    Làm mới Access Token
  * @route   POST /api/auth/refresh
  */
 const refresh = async (req, res) => {
-    // (Giữ nguyên toàn bộ code refresh của bạn)
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
         return res.status(401).json({ message: 'Không tìm thấy refresh token (Chưa đăng nhập).' });
     }
     try {
+        // Gọi SP tìm token
         const tokenData = await authModel.findRefreshToken(refreshToken);
+        
         if (!tokenData) {
             res.clearCookie('refreshToken');
             return res.status(403).json({ message: 'Refresh token không hợp lệ (Không có trong DB).' });
         }
+
         let payload;
         try {
             payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
         } catch (err) {
             return res.status(403).json({ message: 'Refresh token hết hạn hoặc không đúng.' });
         }
+
+        // Gọi SP lấy user info
         const user = await authModel.findUserById(payload.userId);
+        
         if (!user || user.is_active === 0) {
             return res.status(403).json({ message: 'User không tồn tại hoặc đã bị vô hiệu hóa.' });
         }
-    // when refreshing, issue access token with expiry based on role
-    let newAccessExpiresIn;
-    if (user.role === 1) newAccessExpiresIn = '15m';
-    else if (user.role === 2) newAccessExpiresIn = '2h';
-    else newAccessExpiresIn = '30m';
 
-    const newAccessToken = generateAccessToken(payload.userId, user.role, newAccessExpiresIn);
+        let newAccessExpiresIn;
+        if (user.role === 1) newAccessExpiresIn = '15m';
+        else if (user.role === 2) newAccessExpiresIn = '2h';
+        else newAccessExpiresIn = '30m';
+
+        const newAccessToken = generateAccessToken(payload.userId, user.role, newAccessExpiresIn);
+        
         res.json({
             message: 'Làm mới token thành công!',
             accessToken: newAccessToken
@@ -207,19 +239,19 @@ const refresh = async (req, res) => {
     }
 };
 
-
 /**
  * @desc    Đăng xuất
  * @route   POST /api/auth/logout
  */
 const logout = async (req, res) => {
-    // (Giữ nguyên toàn bộ code logout của bạn)
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
         return res.status(200).json({ message: 'Đã đăng xuất (không có token).' });
     }
     try {
+        // Gọi SP xóa token
         await authModel.deleteRefreshToken(refreshToken);
+        
         res.clearCookie('refreshToken', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -237,11 +269,9 @@ const logout = async (req, res) => {
     }
 };
 
-
 module.exports = {
     register,
     login,
     refresh,
     logout
 };
-
