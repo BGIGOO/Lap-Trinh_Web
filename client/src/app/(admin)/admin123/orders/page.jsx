@@ -13,9 +13,9 @@ export default function OrdersPage() {
 
   // Mapping trạng thái sang tên tiếng Việt
   const STATUS_TEXT = {
-    pending: "Đang xử lý",
-    confirmed: "Đã xác nhận",
-    shipping: "Đang giao",
+    pending: "Đang chờ xử lý",
+    processing: "Đang xử lý",
+    shipped: "Đang giao",
     completed: "Hoàn thành",
     cancelled: "Đã hủy",
   };

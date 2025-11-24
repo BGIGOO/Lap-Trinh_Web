@@ -133,9 +133,9 @@ export default function EditOrder({ order, onClose, onSuccess }) {
               onChange={handleChange}
               className="border w-full px-3 py-2 rounded"
             >
-              <option value="pending">Đang xử lý</option>
-              <option value="confirmed">Đã xác nhận</option>
-              <option value="shipping">Đang giao</option>
+              <option value="pending">Đang chờ xử lý</option>
+              <option value="processing">Đã xử lý</option>
+              <option value="shipped">Đang giao</option>
               <option value="completed">Hoàn thành</option>
               <option value="cancelled">Đã hủy</option>
             </select>
