@@ -58,31 +58,47 @@ exports.create = async (data) => {
 };
 
 exports.update = async (id, data) => {
-    const {
-        category_id,
-        name,
-        slug,
-        original_price,
-        sale_price,
-        description,
-        image_url,
-        is_active,
-        priority,
-    } = data;
-    const [result] = await db.query(
-        `UPDATE products SET category_id=?, name=?, slug=?, original_price=?, sale_price=?, description=?, image_url=?, is_active=?, priority=? WHERE id=?`,
-        [
-            category_id,
-            name,
-            slug,
-            original_price,
-            sale_price,
-            description,
-            image_url,
-            is_active,
-            priority,
-            id,
-        ]
-    );
-    return result.affectedRows > 0;
+  let {
+    category_id,
+    name,
+    slug,
+    original_price,
+    sale_price,
+    description,
+    image_url,
+    is_active,
+    priority,
+  } = data;
+
+  // Nếu không upload ảnh mới → giữ ảnh cũ
+  const newImage = image_url && image_url !== "" ? image_url : null;
+
+  const [result] = await db.query(
+    `UPDATE products 
+         SET category_id=?, 
+             name=?, 
+             slug=?, 
+             original_price=?, 
+             sale_price=?, 
+             description=?, 
+             image_url = IFNULL(?, image_url), 
+             is_active=?, 
+             priority=?
+         WHERE id=?`,
+    [
+      category_id,
+      name,
+      slug,
+      original_price,
+      sale_price,
+      description,
+      newImage, // 
+      is_active,
+      priority,
+      id,
+    ]
+  );
+
+  return result.affectedRows > 0;
 };
+
