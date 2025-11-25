@@ -1,24 +1,40 @@
 "use client";
 
-export const ToggleSwitch = ({ id, label, checked, onChange, name }) => (
-  <div className="flex items-center">
-    <div className="flex items-center h-5">
-      <input
-        id={id}
-        name={name}
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        className="form-checkbox h-5 w-5 text-[#00473e] rounded focus:ring-[#faae2b]"
-      />
-    </div>
-    <div className="ml-3 text-sm">
-      <label htmlFor={id} className="font-medium text-[#475d5b]">
+export const ToggleSwitch = ({ id, name, label, checked, onChange }) => {
+  return (
+    <div className="flex items-center justify-between min-h-[2.5rem]">
+      {/* Phần Label hiển thị bên trái */}
+      <label 
+        htmlFor={id} 
+        className="text-sm font-medium text-[#475d5b] cursor-pointer select-none mr-3"
+      >
         {label}
       </label>
-      <p className="text-xs text-gray-500">
-        {checked ? "Tài khoản đang được kích hoạt." : "Tài khoản đang bị vô hiệu hóa."}
-      </p>
+      
+      {/* Phần Nút gạt (Switch) hiển thị bên phải */}
+      <label className="relative inline-flex items-center cursor-pointer">
+        <input
+          type="checkbox"
+          id={id}
+          name={name}
+          checked={checked}
+          onChange={onChange}
+          className="sr-only peer"
+        />
+        
+        {/* Thanh trượt (Track) */}
+        <div className="w-11 h-6 bg-gray-200 
+                        peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#faae2b] 
+                        rounded-full peer 
+                        peer-checked:bg-[#00473e]
+                        
+                        /* Viên bi (Knob) */
+                        after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                        after:bg-white after:border-gray-300 after:border after:rounded-full 
+                        after:h-5 after:w-5 after:transition-all 
+                        peer-checked:after:translate-x-full peer-checked:after:border-white">
+        </div>
+      </label>
     </div>
-  </div>
-);
+  );
+};

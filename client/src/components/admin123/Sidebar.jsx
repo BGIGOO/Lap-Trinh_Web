@@ -97,8 +97,15 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
 
         <SidebarItem
           icon={<Package className="h-5 w-5 flex-shrink-0" />}
-          text="Khuyến mãi"
+          text="Banner Khuyến mãi"
           href="/admin123/promotions"
+          isCollapsed={isCollapsed}
+        />
+
+        <SidebarItem
+          icon={<Package className="h-5 w-5 flex-shrink-0" />}
+          text="Mã Giảm Giá"
+          href="/admin123/vouchers"
           isCollapsed={isCollapsed}
         />
 
@@ -111,7 +118,7 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
 
         <SidebarItem
           icon={<IdCard className="h-5 w-5 flex-shrink-0" />}
-          text="Quản Lý Nhân viên"
+          text="Nhân viên"
           href="/admin123/employee"
           isCollapsed={isCollapsed}
         />
