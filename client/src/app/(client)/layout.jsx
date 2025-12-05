@@ -23,7 +23,7 @@ export default function ClientLayout({ children }) {
     <div className="min-h-screen bg-white text-slate-800 overflow-x-hidden flex flex-col">
       <Header setOpenAuthModal={() => setOpenAuthModal(true)} />
       <main className="flex-1">{children}</main>
-      <Cityline />
+   
       <Footer />
       
       {/* Modal Đăng nhập / Đăng ký */}

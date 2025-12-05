@@ -1,115 +1,118 @@
-import Image from "next/image";
+"use client";
 
-import img1 from "@/assets/4.png";
-import img2 from "@/assets/5.jpg";
-import img3 from "@/assets/6.jpg";
-import img4 from "@/assets/6.jpg"; // demo thêm 1 ảnh
+import { useEffect, useState } from "react";
+import Link from "next/link";
 
-const PRODUCTS = [
-    {
-        id: 1,
-        name: "[Gà Giòn] Combo Tiệc Gà 7 món",
-        price: "167.000",
-        img: img1,
-    },
-    {
-        id: 2,
-        name: "[Gà Nước Mắm] Combo Tiệc Gà 7 món",
-        price: "181.000",
-        img: img2,
-    },
-    {
-        id: 3,
-        name: "[Gà Giòn] Combo Tiệc Gà 7 món (Chọn Xốt)",
-        price: "178.000",
-        img: img3,
-    },
-    {
-        id: 4,
-        name: "[Gà Phô Mai] Combo Tiệc Gà 7 món",
-        price: "188.000",
-        img: img4,
-    },
-    {
-        id: 5,
-        name: "[Gà Giòn] Combo Tiệc Gà 7 món",
-        price: "167.000",
-        salePrice: "99.000",
-        img: img4,
-    },
-    {
-        id: 6,
-        name: "[Gà Giòn] Combo Tiệc Gà 7 món",
-        price: "167.000",
-        salePrice: "99.000",
-        img: img4,
-    },
-];
+export default function CategoryProducts() {
+  const [sections, setSections] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-export default function CategoryProducts({ heading = "Ưu đãi hôm nay" }) {
-    const VISIBLE = PRODUCTS.slice(0, 4); // chỉ lấy 4 sp
+  useEffect(() => {
+    loadAllCategories();
+  }, []);
 
-    return (
-        <section className="max-w-6xl mx-auto px-4 md:px-0 my-6">
-            <div className="flex flex-col items-center gap-2 mb-6">
-                <h2 className="text-2xl md:text-[28px] font-extrabold tracking-wide text-[#FF523B]">
-                    {heading}
-                </h2>
-            </div>
+  // ============================================
+  // 🔥 Load tất cả danh mục + 4 sản phẩm mỗi mục
+  // ============================================
+  async function loadAllCategories() {
+    try {
+      const cateRes = await fetch("http://localhost:3001/api/categories");
+      const cateJson = await cateRes.json();
 
-            {/* Grid: mobile 2 cột, md 4 cột */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                {VISIBLE.map((p) => (
-                    <article
-                        key={p.id}
-                        className="w-full flex flex-col rounded-4xl border border-[#e0e0e0]
-                       overflow-hidden transition-shadow hover:shadow-md cursor-pointer"
-                    >
-                        {/* Ảnh: dùng next/image với layout fill */}
-                        <div className="relative h-36 md:h-60 bg-white/60">
-                            <Image
-                                src={p.img}
-                                alt={p.name}
-                                fill
-                                className="object-cover"
-                                sizes="(min-width: 768px) 25vw, 50vw"
-                                priority={p.id <= 2} // ưu tiên prefetch vài ảnh đầu
-                            />
-                        </div>
+      if (!cateJson.success) return;
 
-                        <div className="p-3 flex flex-col grow">
-                            <h3
-                                className="text-center text-[#FF523B] font-bold leading-snug
-                           text-[13px] md:text-[15px] min-h-[40px] md:min-h-[48px] pl-1 pr-1"
-                                title={p.name}
-                            >
-                                {p.name}
-                            </h3>
+      // ⭐ Chỉ lấy active + sắp xếp theo độ ưu tiên
+      const categories = [...cateJson.data]
+        .filter((c) => c.is_active === 1)
+        .sort((a, b) => a.priority - b.priority);
 
-                            <div className="mt-auto text-center font-semibold text-neutral-900 pb-4">
-                                <span className="tabular-nums text-[13px] md:text-[15px] font-bold">
-                                    {p.price}
-                                </span>
-                                <span className="ml-1 text-sm md:text-base underline font-bold">
-                                    đ
-                                </span>
-                            </div>
-                        </div>
-                    </article>
-                ))}
-            </div>
 
-            <a
-                href="/product"
-                className="block mx-auto mt-8 px-5 py-3 rounded-full
-                   bg-[#FF8A00] text-white text-sm font-bold
-                   transition-colors duration-200
-                   hover:bg-[#FFC98D] active:bg-[#FFBD77] cursor-pointer w-max"
+      const sectionList = [];
+
+      for (const c of categories) {
+        const productRes = await fetch(
+          `http://localhost:3001/api/products/category/${c.id}`
+        );
+        const productJson = await productRes.json();
+
+        if (!productJson.success) continue;
+
+        sectionList.push({
+          title: c.name,
+          slug: c.slug,
+          products: productJson.data.slice(0, 4),
+        });
+      }
+
+      setSections(sectionList);
+    } catch (err) {
+      console.error("Load categories failed:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+
+  // =============================
+  // 🔥 Template thẻ sản phẩm
+  // =============================
+  const renderProductCard = (p) => (
+    <article
+      key={p.id}
+      onClick={() => loadProductAndOpen(p.id)}
+      className="flex flex-col rounded-3xl border border-[#DCDCDC] overflow-hidden cursor-pointer transition hover:shadow-lg"
+    >
+      <div className="h-40 md:h-62 overflow-hidden">
+        <img
+          src={`http://localhost:3001${p.image_url}`}
+          className="w-full h-full object-cover rounded-t-3xl"
+        />
+      </div>
+
+      <div className="p-3 flex flex-col grow">
+        <h3 className="text-center text-[#FF523B] font-bold text-sm md:text-[15px] min-h-[40px] leading-snug">
+          {p.name}
+        </h3>
+
+        <div className="mt-auto text-center text-neutral-900 pb-3">
+          <span className="font-bold text-[14px]">
+            {Number(p.original_price).toLocaleString("vi-VN")}
+          </span>
+          <span className="ml-1 text-sm underline font-bold">đ</span>
+        </div>
+      </div>
+    </article>
+  );
+
+  if (loading) return <p className="text-center py-10">Đang tải...</p>;
+
+  return (
+    <section className="max-w-6xl mx-auto px-4 md:px-0">
+      {sections.map((sec) => (
+        <div key={sec.slug} className="mb-16">
+          {/* 🟠 Tên danh mục */}
+          <h2 className="text-center text-xl font-bold text-[#FC4126] mb-6">
+            {sec.title}
+          </h2>
+
+          {/* 🟡 Grid 4 sản phẩm */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 justify-items-center">
+            {sec.products.map((p) => renderProductCard(p))}
+          </div>
+
+          {/* 🟢 Nút xem thêm */}
+          <div className="text-center mt-6">
+            <Link
+              href={`/product?category=${sec.slug}`}
+              className="px-6 py-2 bg-[#19BFB0] text-white rounded-full hover:bg-[#17a89c] transition"
             >
-                Xem thêm thực đơn
-            </a>
+              Xem thêm thực đơn
+            </Link>
+          </div>
 
-            <div className="mt-8 border-b border-[#f2f2f2] w-full" />
-        </section>
-    );
+          <hr className="my-12 border-gray-200" />
+        </div>
+      ))}
+    </section>
+  );
 }

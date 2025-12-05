@@ -1,54 +1,74 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function ProductFilter({ value = "", onChange, onSearchClick }) {
+export default function ProductFilter() {
   const [categories, setCategories] = useState([]);
-  const [active, setActive] = useState(value);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(true);
+
+  const router = useRouter();
+  const params = useSearchParams();
+  const activeSlug = params.get("category") || "tat-ca";
+
   const trackRef = useRef(null);
 
-  // 🟡 Fetch categories từ API
+  // ================================
+  // 🟡 Fetch categories từ backend
+  // ================================
   useEffect(() => {
-    async function fetchCategories() {
+    async function loadCategories() {
       try {
         const res = await fetch("http://localhost:3001/api/categories");
-        const { data } = await res.json();
+        const json = await res.json();
 
-        // Thêm "Tất cả"
-        const cats = [
-          { id: 0, name: "Tất cả", image_url: "/tatca.png" },
-          ...data,
-        ];
+        if (!json.success) return;
 
-        // Gắn full URL cho ảnh
-        const normalized = cats.map((c) => ({
-          ...c,
-          fullImage:
-            c.image_url && c.image_url.startsWith("/uploads")
-              ? `http://localhost:3001${c.image_url}`
-              : c.image_url,
+        // ⭐ Lọc active + sort theo priority tăng dần
+        const sorted = [...json.data]
+          .filter((c) => c.is_active === 1)
+          .sort((a, b) => a.priority - b.priority);
+
+        const formatted = sorted.map((c) => ({
+          id: c.id,
+          name: c.name,
+          slug: c.slug,
+          icon: c.image_url?.startsWith("/uploads")
+            ? `http://localhost:3001${c.image_url}`
+            : c.image_url,
         }));
 
-        setCategories(normalized);
+        // ⭐ Thêm mục "Tất cả"
+        setCategories([
+          { id: 0, name: "Tất cả", slug: "tat-ca", icon: "/tatca.png" },
+          ...formatted,
+        ]);
       } catch (err) {
-        console.error("Lỗi khi lấy categories:", err);
+        console.error("Lỗi load categories:", err);
       }
     }
-    fetchCategories();
+
+    loadCategories();
   }, []);
 
-  useEffect(() => setActive(value), [value]);
+  // ================================
+  // 🔥 Chọn danh mục → update URL
+  // ================================
+  const selectCategory = (slug) => {
+    router.push(`/product?category=${slug}`);
+  };
 
+  // ================================
+  // 🧭 Cập nhật trạng thái nút scroll
+  // ================================
   const updateArrows = () => {
     const el = trackRef.current;
     if (!el) return;
 
-    const { scrollLeft, clientWidth, scrollWidth } = el;
-    setCanLeft(scrollLeft > 0);
-    setCanRight(scrollLeft + clientWidth < scrollWidth - 1);
+    setCanLeft(el.scrollLeft > 5);
+    setCanRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 10);
   };
 
   useEffect(() => {
@@ -56,62 +76,55 @@ export default function ProductFilter({ value = "", onChange, onSearchClick }) {
     const el = trackRef.current;
     if (!el) return;
 
-    const onResize = () => updateArrows();
-    window.addEventListener("resize", onResize);
     el.addEventListener("scroll", updateArrows);
+    window.addEventListener("resize", updateArrows);
 
     return () => {
-      window.removeEventListener("resize", onResize);
       el.removeEventListener("scroll", updateArrows);
+      window.removeEventListener("resize", updateArrows);
     };
   }, []);
-
-  const select = (id) => {
-    setActive(id);
-    onChange?.(id);
-  };
 
   const scrollByStep = (dir) => {
     const el = trackRef.current;
     if (!el) return;
-    const step = Math.round(el.clientWidth * 0.6);
-    el.scrollBy({ left: dir * step, behavior: "smooth" });
+    el.scrollBy({ left: el.clientWidth * dir * 0.6, behavior: "smooth" });
   };
 
   return (
-    <section className="max-w-4xl mx-auto px-4 md:px-0">
-      <div className="relative flex items-center gap-3 py-8">
-        {/* Prev */}
+    <section className="max-w-5xl mx-auto px-4 md:px-0 py-6">
+      <div className="relative flex items-center gap-3">
+        {/* Prev button */}
         <button
-          onClick={() => scrollByStep(-1)}
           disabled={!canLeft}
-          className={`shrink-0 grid place-items-center w-10 h-10 rounded-full transition-colors ${
+          onClick={() => scrollByStep(-1)}
+          className={`w-10 h-10 grid place-items-center rounded-full transition ${
             canLeft
-              ? "bg-gray-200 text-gray-600 hover:bg-gray-300"
+              ? "bg-gray-200 hover:bg-gray-300 text-gray-600"
               : "bg-gray-100 text-gray-300 cursor-not-allowed"
           }`}
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft size={20} />
         </button>
 
-        {/* Track */}
+        {/* CATEGORY SCROLL TRACK */}
         <div
           ref={trackRef}
-          className="flex items-center gap-6 overflow-x-auto scroll-smooth no-scrollbar flex-1"
+          className="flex items-center gap-7 overflow-x-auto no-scrollbar scroll-smooth flex-1"
         >
           {categories.map((c) => {
-            const isActive = active === c.id;
+            const isActive = activeSlug === c.slug;
 
             return (
               <button
-                key={c.id}
-                onClick={() => select(c.id)}
-                className="shrink-0 flex flex-col items-center gap-1 cursor-pointer"
+                key={c.slug}
+                onClick={() => selectCategory(c.slug)}
+                className="flex flex-col items-center gap-1 shrink-0 cursor-pointer"
               >
-                <ColorIcon src={c.fullImage} active={isActive} />
+                <CategoryIcon src={c.icon} active={isActive} />
 
                 <span
-                  className={`text-xs md:text-sm font-semibold transition ${
+                  className={`text-sm font-semibold transition ${
                     isActive ? "text-[#FC4126]" : "text-gray-400"
                   }`}
                 >
@@ -122,44 +135,40 @@ export default function ProductFilter({ value = "", onChange, onSearchClick }) {
           })}
         </div>
 
-        {/* Next */}
+        {/* Next button */}
         <button
-          onClick={() => scrollByStep(1)}
           disabled={!canRight}
-          className={`shrink-0 grid place-items-center w-10 h-10 rounded-full transition-colors cursor-pointer ${
+          onClick={() => scrollByStep(1)}
+          className={`w-10 h-10 grid place-items-center rounded-full transition ${
             canRight
-              ? "bg-[#FC4126] text-white hover:bg-[#ff6347]"
+              ? "bg-[#FC4126] hover:bg-[#ff6b50] text-white"
               : "bg-orange-100 text-white/60 cursor-not-allowed"
           }`}
         >
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight size={20} />
         </button>
 
-        {/* Search */}
-        <button
-          onClick={onSearchClick}
-          className="shrink-0 grid place-items-center w-10 h-10 rounded-full bg-[#19BFB0] text-white hover:opacity-90 transition cursor-pointer"
-        >
-          <Search className="w-5 h-5" />
+        {/* Search button */}
+        <button className="w-10 h-10 grid place-items-center rounded-full bg-[#19BFB0] text-white hover:opacity-90 ml-2">
+          <Search size={20} />
         </button>
       </div>
     </section>
   );
 }
 
-// ICON MASK
-function ColorIcon({ src, active }) {
-  const url = typeof src === "string" ? src : src?.src;
-
+// ======================================
+// 🎨 CATEGORY ICON (Mask SVG thành màu)
+// ======================================
+function CategoryIcon({ src, active }) {
   return (
     <span
-      aria-hidden="true"
       className={`block w-10 h-10 md:w-14 md:h-14 transition ${
         active ? "bg-[#FC4126]" : "bg-gray-400 opacity-50"
       }`}
       style={{
-        WebkitMaskImage: `url("${url}")`,
-        maskImage: `url("${url}")`,
+        WebkitMaskImage: `url("${src}")`,
+        maskImage: `url("${src}")`,
         WebkitMaskSize: "contain",
         maskSize: "contain",
         WebkitMaskRepeat: "no-repeat",

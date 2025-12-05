@@ -22,6 +22,10 @@ const upload = multer({ storage });
 // Lấy tất cả danh mục
 router.get("/", categoryController.getAll);
 // Tạo danh mục
+
+router.get("/slug/:slug", categoryController.getBySlug);
+
+
 router.post(
     "/",
     upload.single("image_url"),

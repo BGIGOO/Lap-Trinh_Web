@@ -4,7 +4,7 @@ import { Facebook, Instagram, Music2, AtSign } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-[#FC4126] text-white">
+    <footer className="bg-[#F97316] text-white">
       <div className="max-w-7xl mx-auto p-6">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {/* ===== LEFT COLUMN ===== */}
@@ -46,7 +46,7 @@ export default function Footer() {
                 placeholder="Email..."
                 className="flex-1 bg-transparent text-white placeholder:text-white/80 text-sm px-4 py-[10px] outline-none"
               />
-              <button className="flex items-center justify-center w-[83px] h-[51px] bg-white text-[#FC4126] text-[40px] leading-none border border-white rounded-[32.5px]">
+              <button className="flex items-center justify-center w-[83px] h-[51px] bg-white text-[#F97316] text-[40px] leading-none border border-white rounded-[32.5px]">
                 &gt;
               </button>
             </div>
@@ -58,11 +58,9 @@ export default function Footer() {
               HOTLINE ĐẶT HÀNG NHANH
             </p>
 
-            <div className="inline-block bg-white text-[#FC4126] font-extrabold text-2xl px-6 py-2 rounded-full mb-3">
+            <div className="inline-block bg-white text-[#F97316] font-extrabold text-2xl px-6 py-2 rounded-full mb-3">
               1900-1224
             </div>
-
-
 
             <ul className="space-y-1 text-sm">
               <li>
@@ -124,13 +122,13 @@ export default function Footer() {
                   className="h-10 w-auto object-contain"
                 />
               </div>
-                          <p className="text-sm leading-relaxed mt-4">
-              Thời gian hoạt động: 8h00 – 22h00
-              <br />
-              Địa chỉ: 19 Nguyễn Hữu Thọ, Tân Hưng,
-              <br />
-              Tp Hồ Chí Minh
-            </p>
+              <p className="text-sm leading-relaxed mt-4">
+                Thời gian hoạt động: 8h00 – 22h00
+                <br />
+                Địa chỉ: 19 Nguyễn Hữu Thọ, Tân Hưng,
+                <br />
+                Tp Hồ Chí Minh
+              </p>
             </div>
 
             {/* Policies */}

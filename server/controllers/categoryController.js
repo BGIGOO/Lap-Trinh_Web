@@ -158,3 +158,36 @@ exports.update = async (req, res) => {
     });
   }
 };
+
+// ===============================
+//   LẤY DANH MỤC THEO SLUG
+// ===============================
+exports.getBySlug = async (req, res) => {
+  try {
+    const slug = req.params.slug;
+
+    const category = await Category.getBySlug(slug);
+
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy danh mục với slug này",
+        data: null,
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Lấy danh mục theo slug thành công",
+      data: category,
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server khi lấy danh mục theo slug",
+      data: null,
+    });
+  }
+};
